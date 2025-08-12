@@ -1,0 +1,33 @@
+[build-system]
+requires = ["hatchling >= 1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pyrbd"
+version = "0.1.0"
+description = "Package for creating simple reliability block diagrams using LaTeX TikZ."
+readme = "README.md"
+authors = [
+    {name = "Henning Goa Hugdal", email = "hghugdal@gmail.com"},
+]
+requires-python = ">=3.12"
+license = "MIT"
+dependencies = []
+
+[project.urls]
+Repository = "https://github.com/hghugdal/pyrbd"
+Issues = "https://github.com/hghugdal/pyrbd"
+
+[dependency-groups]
+dev = [
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.16",
+    "mkdocstrings[python]>=0.30.0",
+    "mypy>=1.17.1",
+    "pydoclint>=0.6.6",
+    "pylint>=3.3.8",
+    "pytest>=8.4.1",
+    "ruff>=0.12.8",
+]
+
+[tool.pylint]
