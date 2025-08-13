@@ -12,14 +12,39 @@ authors = [
 ]
 requires-python = ">=3.11"
 license = "MIT"
-dependencies = []
+dependencies = [
+    "numpy>=2.3.2",
+]
 
 [project.urls]
 Repository = "https://github.com/hghugdal/pyrbd"
 Issues = "https://github.com/hghugdal/pyrbd"
 
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = [
+	"pyrbd.*"
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+addopts = [
+    "--import-mode=importlib",
+	"--doctest-modules",
+]
+testpaths = [
+	"pyrbd",
+	"tests",
+]
+
 [dependency-groups]
 dev = [
+    "coverage>=7.10.3",
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.16",
     "mkdocstrings[python]>=0.30.0",

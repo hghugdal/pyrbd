@@ -1,2 +1,3 @@
 ::: pyrbd.block
-    heading_level: 1
+    options:
+        heading_level: 1

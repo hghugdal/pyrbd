@@ -25,22 +25,33 @@ class Diagram:
         (nested) list of `Block` instances entering the block diagram
     head : Block
         first block in diagram
+    preamble : str
+        diagram Tex file preamble
+    end : str
+        diagram Tex file end
     """
 
     preamble = "\n".join(
         [
             r"\documentclass{standalone}",
             r"\usepackage{tikz}",
-            r"\usetikzlibrary{matrix,shapes,arrows,positioning,chains}",
+            r"\usetikzlibrary{shapes,arrows,positioning,calc}",
             r"\tikzset{",
             r"connector/.style={",
             r"-latex,",
+            r"font=\scriptsize},",
+            r"line/.style={",
             r"font=\scriptsize},",
             r"rectangle connector/.style={",
             r"connector,"
             r"to path={(\tikztostart) -- ++(#1,0pt) \tikztonodes |- (\tikztotarget) },",
             r"pos=0.5},"
-            r"rectangle connector/.default=-2cm,",
+            r"rectangle connector/.default=0.5cm,",
+            r"rectangle line/.style={",
+            r"line,"
+            r"to path={(\tikztostart) -- ++(#1,0pt) \tikztonodes |- (\tikztotarget) },",
+            r"pos=0.5},"
+            r"rectangle line/.default=0.5cm,",
             r"straight connector/.style={",
             r"connector,",
             r"to path=--(\tikztotarget) \tikztonodes}",
@@ -61,7 +72,7 @@ class Diagram:
     def __init__(self, name: str, blocks: list, hazard: str = "") -> None:
         self.name = f"{name}.tex"
         self.head = Block(hazard, "red!60")
-        self.head.id = 0
+        self.head.id = "0"
         self.blocks = blocks
 
         self.blocks[0].parent = self.head
@@ -81,3 +92,4 @@ class Diagram:
 
         check_call(["latexmk", self.name])
         check_call(["latexmk", "-c", self.name])
+        check_call(["rm", self.name])

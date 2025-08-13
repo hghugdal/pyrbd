@@ -498,6 +498,8 @@
       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
       
       
+        
+      
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
           
@@ -530,6 +532,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -538,16 +542,6 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#pyrbd.diagram" class="md-nav__link">
-    <span class="md-ellipsis">
-      diagram
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="diagram">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#pyrbd.diagram.Diagram" class="md-nav__link">
     <span class="md-ellipsis">
       Diagram
@@ -572,11 +566,6 @@
       write
     </span>
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
         
@@ -620,17 +609,15 @@
   
 
 
-  <h1>Diagram</h1>
-
 <div class="doc doc-object doc-module">
 
 
 
-<h2 id="pyrbd.diagram" class="doc doc-heading">
+<h1 id="pyrbd.diagram" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-module"></code>            <code>diagram</code>
 
 
-</h2>
+</h1>
 
     <div class="doc doc-contents first">
 
@@ -657,11 +644,11 @@
 
 
 
-<h3 id="pyrbd.diagram.Diagram" class="doc doc-heading">
+<h2 id="pyrbd.diagram.Diagram" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <code>Diagram</code>
 
 
-</h3>
+</h2>
 
 
     <div class="doc doc-contents ">
@@ -776,6 +763,28 @@
               </div>
             </td>
           </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pyrbd.diagram.Diagram.preamble">preamble</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>diagram Tex file preamble</p>
+              </div>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td><code><span title="pyrbd.diagram.Diagram.end">end</span></code></td>
+            <td>
+                  <code><span title="str">str</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>diagram Tex file end</p>
+              </div>
+            </td>
+          </tr>
       </tbody>
     </table>
 
@@ -848,7 +857,33 @@
 <span class="normal">66</span>
 <span class="normal">67</span>
 <span class="normal">68</span>
-<span class="normal">69</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Diagram</span><span class="p">:</span>
+<span class="normal">69</span>
+<span class="normal">70</span>
+<span class="normal">71</span>
+<span class="normal">72</span>
+<span class="normal">73</span>
+<span class="normal">74</span>
+<span class="normal">75</span>
+<span class="normal">76</span>
+<span class="normal">77</span>
+<span class="normal">78</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Diagram</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Reliability block diagram class definition.</span>
 
 <span class="sd">    Parameters</span>
@@ -868,13 +903,37 @@
 <span class="sd">        (nested) list of `Block` instances entering the block diagram</span>
 <span class="sd">    head : Block</span>
 <span class="sd">        first block in diagram</span>
+<span class="sd">    preamble : str</span>
+<span class="sd">        diagram Tex file preamble</span>
+<span class="sd">    end : str</span>
+<span class="sd">        diagram Tex file end</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">preamble</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="sa">r</span><span class="s2">&quot;\documentclass</span><span class="si">{standalone}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="sa">r</span><span class="s2">&quot;\usepackage</span><span class="si">{tikz}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="sa">r</span><span class="s2">&quot;\usetikzlibrary</span><span class="si">{positioning}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;\usetikzlibrary{shapes,arrows,positioning,calc}&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;\tikzset{&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;connector/.style={&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;-latex,&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;font=\scriptsize},&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;line/.style={&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;font=\scriptsize},&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;rectangle connector/.style={&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;connector,&quot;</span>
+            <span class="sa">r</span><span class="s2">&quot;to path={(\tikztostart) -- ++(#1,0pt) \tikztonodes |- (\tikztotarget) },&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;pos=0.5},&quot;</span>
+            <span class="sa">r</span><span class="s2">&quot;rectangle connector/.default=0.5cm,&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;rectangle line/.style={&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;line,&quot;</span>
+            <span class="sa">r</span><span class="s2">&quot;to path={(\tikztostart) -- ++(#1,0pt) \tikztonodes |- (\tikztotarget) },&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;pos=0.5},&quot;</span>
+            <span class="sa">r</span><span class="s2">&quot;rectangle line/.default=0.5cm,&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;straight connector/.style={&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;connector,&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;to path=--(\tikztotarget) \tikztonodes}&quot;</span><span class="p">,</span>
+            <span class="sa">r</span><span class="s2">&quot;}&quot;</span><span class="p">,</span>
             <span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{document}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="sa">r</span><span class="s2">&quot;\begin</span><span class="si">{tikzpicture}</span><span class="s2">&quot;</span><span class="p">,</span>
             <span class="s2">&quot;&quot;</span><span class="p">,</span>
@@ -889,9 +948,9 @@
     <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">blocks</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span> <span class="n">hazard</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.tex&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">Block</span><span class="p">(</span><span class="n">hazard</span><span class="p">,</span> <span class="s2">&quot;red!60&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="s2">&quot;0&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="n">blocks</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">head</span>
@@ -899,7 +958,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write diagram to .tex file.&quot;&quot;&quot;</span>
 
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.tex&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
             <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preamble</span><span class="p">)</span>
             <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="o">.</span><span class="n">get_node</span><span class="p">())</span>
             <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
@@ -909,7 +968,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Compile diagram .tex file.&quot;&quot;&quot;</span>
 
-        <span class="n">check_call</span><span class="p">([</span><span class="s2">&quot;latexmk&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.tex&quot;</span><span class="p">])</span>
+        <span class="n">check_call</span><span class="p">([</span><span class="s2">&quot;latexmk&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+        <span class="n">check_call</span><span class="p">([</span><span class="s2">&quot;latexmk&quot;</span><span class="p">,</span> <span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+        <span class="n">check_call</span><span class="p">([</span><span class="s2">&quot;rm&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
 </code></pre></div></td></tr></table></div>
               </details>
 
@@ -928,10 +989,10 @@
 <div class="doc doc-object doc-function">
 
 
-<h4 id="pyrbd.diagram.Diagram.compile" class="doc doc-heading">
+<h3 id="pyrbd.diagram.Diagram.compile" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="nb">compile</span><span class="p">()</span></code>
 
-</h4>
+</h3>
 
 
     <div class="doc doc-contents ">
@@ -941,13 +1002,17 @@
 
             <details class="quote">
               <summary>Source code in <code>pyrbd/diagram.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">compile</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Compile diagram .tex file.&quot;&quot;&quot;</span>
 
-    <span class="n">check_call</span><span class="p">([</span><span class="s2">&quot;latexmk&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.tex&quot;</span><span class="p">])</span>
+    <span class="n">check_call</span><span class="p">([</span><span class="s2">&quot;latexmk&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+    <span class="n">check_call</span><span class="p">([</span><span class="s2">&quot;latexmk&quot;</span><span class="p">,</span> <span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
+    <span class="n">check_call</span><span class="p">([</span><span class="s2">&quot;rm&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">])</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -957,10 +1022,10 @@
 <div class="doc doc-object doc-function">
 
 
-<h4 id="pyrbd.diagram.Diagram.write" class="doc doc-heading">
+<h3 id="pyrbd.diagram.Diagram.write" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <code class="highlight language-python"><span class="n">write</span><span class="p">()</span></code>
 
-</h4>
+</h3>
 
 
     <div class="doc doc-contents ">
@@ -970,18 +1035,18 @@
 
             <details class="quote">
               <summary>Source code in <code>pyrbd/diagram.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">80</span>
+<span class="normal">81</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Write diagram to .tex file.&quot;&quot;&quot;</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.tex&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
         <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">preamble</span><span class="p">)</span>
         <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">head</span><span class="o">.</span><span class="n">get_node</span><span class="p">())</span>
         <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>

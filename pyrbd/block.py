@@ -12,7 +12,7 @@ class Block:
         block text string
     color : str
         block color
-    parent : Block, optional
+    parent : Optional[Block]
         parent `Block` instance
     shift : tuple[float, float], optional
         additional position shift `(x, y)` relative to `parent` `Block` instance
@@ -25,23 +25,34 @@ class Block:
         block color
     parent : Block | None
         parent `Block` instance or `None`
+    id : str
+        block identifier string
     shift : tuple[float, float]
         additional position shift relative to `parent` `Block` instance
     position : str
         string defining the block position
-    options : str
+    tikz_options : str
         TikZ node formatting options
 
+
+    Examples
+    --------
+    >>> block_1 = Block("Start", "green")
+    >>> block_1.id
+    '1'
+    >>> block_2 = Block("End", "red", parent=block_1)
+    >>> block_2.id
+    '2'
     """
 
-    options: str = ", ".join(
+    tikz_options: str = ", ".join(
         [
             "anchor=west",
             "align=center",
             "fill={fill_color}",
             "draw=black",
             "minimum height=1cm",
-            "rounded corners=1mm",
+            "rounded corners=0.3mm",
         ]
     )
 
@@ -56,7 +67,7 @@ class Block:
         self.color = color
         self.parent = parent
         self.shift = shift
-        self.id: int = self.parent.id + 1 if self.parent is not None else 1
+        self.id: str = str(int(self.parent.id) + 1) if self.parent is not None else "1"
 
     @property
     def position(self) -> str:
@@ -65,10 +76,9 @@ class Block:
         if self.parent is None:
             return ""
 
-        return f"[right=of {self.parent.id}, xshift={self.shift[0]}cm, yshift={self.shift[1]}cm]"
+        return f"[right={0.5 + self.shift[0]}cm of {self.parent.id}, yshift={self.shift[1]}cm]"
 
-    @property
-    def arrow(self) -> str:
+    def arrow(self, connector_position: float) -> str:
         """Get TikZ arrow string."""
 
         if self.parent is None:
@@ -76,21 +86,21 @@ class Block:
 
         return " ".join(
             [
-                "\\draw[thick, rectangle connector=0.5cm]",
+                f"\\draw[thick, rectangle connector={connector_position}cm]",
                 f"({self.parent.id}.east) to ({self.id}.west);\n",
             ]
         )
 
-    def get_node(self) -> str:
+    def get_node(self, connector_position: float = 0.25) -> str:
         """Get TikZ node string."""
 
         node = " ".join(
             [
-                f"\\node[{self.options.format(fill_color=self.color)}]",
+                f"\\node[{self.tikz_options.format(fill_color=self.color)}]",
                 f"({self.id})",
                 self.position,
                 f"{{{self.text}}};\n",
-                self.arrow,
+                self.arrow(connector_position),
             ]
         )
         return node
