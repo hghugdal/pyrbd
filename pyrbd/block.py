@@ -53,6 +53,7 @@ class Block:
             "draw=black",
             "minimum height=1cm",
             "rounded corners=0.3mm",
+            "inner sep=4pt",
         ]
     )
 

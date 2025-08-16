@@ -53,6 +53,7 @@ dev = [
     "pylint>=3.3.8",
     "pytest>=8.4.1",
     "ruff>=0.12.8",
+    "ty>=0.0.1a18",
 ]
 
 [tool.pylint]

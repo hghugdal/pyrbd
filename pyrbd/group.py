@@ -25,9 +25,7 @@ class Group(Block):
         ]
     )
 
-    def __init__(
-        self, blocks: list["Block"], parent: Optional["Block | Group"] = None
-    ) -> None:
+    def __init__(self, blocks: list["Block"], parent: Optional["Block"] = None) -> None:
         Block.__init__(self, "", "", parent)
 
         self.blocks = blocks
