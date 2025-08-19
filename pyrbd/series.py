@@ -21,6 +21,7 @@ class Series(Block):
         [
             "anchor=west",
             "inner sep=0pt",
+            "outer sep=0pt",
         ]
     )
 
@@ -47,25 +48,25 @@ class Series(Block):
         block_nodes = "\n".join(
             block.get_node(connector_position) for block in self.blocks
         )
-        series_node = " ".join(
+        series_node = "".join(
             [
                 f"\\node[{self.tikz_options}]",
                 f"({self.id})",
                 self.position,
                 "{\\begin{tikzpicture}\n",
                 block_nodes,
-                "\\end{tikzpicture}};\n",
+                "\\end{tikzpicture}};\n\n",
                 self.arrow(connector_position),
-                r"\begin{pgfonlayer}{background}",
-                f"\\coordinate (sw) at ($({self.id}.south west)+(-1mm, -1mm)$);",
-                f"\\coordinate (nw) at ($({self.id}.north west)+(-1mm, 1mm)$);",
-                f"\\coordinate (ne) at ($({self.id}.north east)+(1mm, 1mm)$);",
-                f"\\coordinate (n) at ($({self.id}.north)+(0mm, 1mm)$);",
-                f"\\draw[{self.color}, thick] (sw) rectangle (ne);",
-                f"\\draw[{self.color}, fill={self.color}!50, thick] (nw)",
-                r"rectangle ($(ne)+(0, 0.5cm)$);",
-                f"\\node[anchor=south] at (n) {{{self.text}}};",
-                r"\end{pgfonlayer}",
+                "\\begin{pgfonlayer}{background}\n",
+                f"\\coordinate (sw) at ($({self.id}.south west)+(-1mm, -1mm)$);\n",
+                f"\\coordinate (nw) at ($({self.id}.north west)+(-1mm, 1mm)$);\n",
+                f"\\coordinate (ne) at ($({self.id}.north east)+(1mm, 1mm)$);\n",
+                f"\\coordinate (n) at ($({self.id}.north)+(0mm, 1mm)$);\n",
+                f"\\draw[{self.color}, thick] (sw) rectangle (ne);\n",
+                f"\\draw[{self.color}, fill={self.color}!50, thick] (nw) ",
+                "rectangle ($(ne)+(0, 0.5cm)$);\n",
+                f"\\node[anchor=south] at (n) {{{self.text}}};\n",
+                "\\end{pgfonlayer}\n",
             ]
         )
         return series_node

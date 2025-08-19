@@ -1,6 +1,7 @@
 """Definition of Group class for vertically stacking grouped `Block` instances."""
 
 from typing import Optional
+from itertools import combinations
 
 from numpy import linspace
 
@@ -30,8 +31,8 @@ class Group(Block):
 
         self.blocks = blocks
         for i, (block, shift) in enumerate(zip(self.blocks, self.shifts)):
-            block.shift = (0.5, shift)
-            block.parent = parent
+            block.shift = (0, shift)
+            block.parent = self
             block.id = f"{self.id}-{i}"
 
     @property
@@ -42,8 +43,25 @@ class Group(Block):
 
         return list(
             self.shift_scale
-            * linspace(-n_blocks / 2, n_blocks / 2, n_blocks, dtype="float")
+            * linspace(n_blocks / 2, -n_blocks / 2, n_blocks, dtype="float")
         )
+
+    @property
+    def position(self) -> str:
+        """Group position."""
+
+        if self.parent is None:
+            return ""
+
+        return f"[right=0.5cm of {self.parent.id}, xshift=0.0cm]"
+
+    def arrow(self, connector_position: float) -> str:
+        """Get TikZ arrow string."""
+
+        if self.parent is None:
+            return ""
+
+        return f"\\draw[thick] ({self.parent.id}.east) to ({self.id}.west);\n"
 
     @property
     def arrows(self) -> str:
@@ -54,24 +72,31 @@ class Group(Block):
                 " ".join(
                     [
                         "\\draw[thick, rectangle line]",
-                        f"({block.id}.east) to ({self.id});\n",
+                        f"({block1.id}.east) to ({block2.id}.east);\n",
                     ]
                 )
-                for block in self.blocks
+                for (block1, block2) in combinations(self.blocks, 2)
             ]
         )
 
-    def get_node(self, connector_position: float = 0.5) -> str:
+    def get_node(self, connector_position: float = 0.0) -> str:
         """Get TikZ node string."""
 
         block_nodes = "\n".join(
             block.get_node(connector_position) for block in self.blocks
         )
-        group_node = " ".join(
+
+        group_node = "".join(
             [
-                f"\\coordinate ({self.id}) at",
-                f"($({self.blocks[0].id}.east)!0.5!({self.blocks[-1].id}.east) + (0.5cm, 0)$);",
-                "\n",
+                f"\\node[anchor=west, outer sep=0pt, inner sep=0pt, align=center] ({self.id}) ",
+                self.position,
+                "{\\begin{tikzpicture}\n",
+                f"\\coordinate ({self.id}) at (0, 0);\n",
+                block_nodes,
+                self.arrows,
+                "\\end{tikzpicture}};\n\n",
+                self.arrow(connector_position),
             ]
         )
-        return block_nodes + group_node + self.arrows
+
+        return group_node

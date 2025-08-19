@@ -54,6 +54,7 @@ class Block:
             "minimum height=1cm",
             "rounded corners=0.3mm",
             "inner sep=4pt",
+            "outer sep=0pt",
         ]
     )
 
@@ -75,9 +76,9 @@ class Block:
         """Block position."""
 
         if self.parent is None:
-            return ""
+            return " "
 
-        return f"[right={0.5 + self.shift[0]}cm of {self.parent.id}, yshift={self.shift[1]}cm]"
+        return f"[right={0.5 + self.shift[0]}cm of {self.parent.id}, yshift={self.shift[1]}cm] "
 
     def arrow(self, connector_position: float) -> str:
         """Get TikZ arrow string."""
@@ -88,17 +89,18 @@ class Block:
         return " ".join(
             [
                 f"\\draw[thick, rectangle connector={connector_position}cm]",
-                f"({self.parent.id}.east) to ({self.id}.west);\n",
+                f"({self.parent.id}.east) to ({self.id}.west);\n\n",
             ]
         )
 
     def get_node(self, connector_position: float = 0.25) -> str:
         """Get TikZ node string."""
 
-        node = " ".join(
+        node = "".join(
             [
-                f"\\node[{self.tikz_options.format(fill_color=self.color)}]",
-                f"({self.id})",
+                "% Block\n",
+                f"\\node[{self.tikz_options.format(fill_color=self.color)}] ",
+                f"({self.id}) ",
                 self.position,
                 f"{{{self.text}}};\n",
                 self.arrow(connector_position),
