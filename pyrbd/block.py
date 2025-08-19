@@ -1,6 +1,10 @@
 """Module containing Block class definition."""
 
 from typing import Optional
+from itertools import combinations
+from copy import deepcopy
+
+from numpy import linspace
 
 
 class Block:
@@ -76,9 +80,9 @@ class Block:
         """Block position."""
 
         if self.parent is None:
-            return " "
+            return ""
 
-        return f"[right={0.5 + self.shift[0]}cm of {self.parent.id}, yshift={self.shift[1]}cm] "
+        return f"[right={0.5 + self.shift[0]}cm of {self.parent.id}, yshift={self.shift[1]}cm]"
 
     def arrow(self, connector_position: float) -> str:
         """Get TikZ arrow string."""
@@ -86,7 +90,7 @@ class Block:
         if self.parent is None:
             return ""
 
-        return " ".join(
+        return "".join(
             [
                 f"\\draw[thick, rectangle connector={connector_position}cm]",
                 f"({self.parent.id}.east) to ({self.id}.west);\n\n",
@@ -107,3 +111,212 @@ class Block:
             ]
         )
         return node
+
+    def __add__(self, block: "Block") -> "Series":
+        """Add two `Block` instances to make a `Series` instance."""
+
+        return Series([self, block], parent=self.parent)
+
+    def __mul__(self, value: int) -> "Group":
+        """Multiply `Block` instance by `value` to make `Group` with repeated blocks."""
+
+        blocks: list[Block] = []
+        while len(blocks) < value:
+            blocks.append(deepcopy(self))
+
+        return Group(blocks, parent=self.parent)
+
+    __rmul__ = __mul__
+
+
+class Series(Block):
+    """Series configuration of `Block` instances for horisontal grouping.
+
+    Parameters
+    ----------
+    blocks : list[Block]
+        list of `Block` instances
+    text: str, optional
+        series label text
+    color: str, default: 'white'
+        series color
+    parent : Block, optional
+        parent `Block` instance
+    """
+
+    shift_scale = 0.8
+    tikz_options: str = ", ".join(
+        [
+            "anchor=west",
+            "align=center",
+            "inner sep=0pt",
+            "outer sep=0pt",
+        ]
+    )
+
+    def __init__(
+        self,
+        blocks: list["Block"],
+        text: str = "",
+        color: str = "white",
+        parent: Optional["Block"] = None,
+    ) -> None:
+        Block.__init__(self, text, color, parent)
+
+        self.blocks = blocks
+        self.blocks[0].id = f"{self.id}+0"
+        for i, (block, new_parent) in enumerate(
+            zip(self.blocks[1::], self.blocks[0:-1]), start=1
+        ):
+            block.parent = new_parent
+            block.id = f"{self.id}+{i}"
+
+    @property
+    def background(self) -> str:
+        """Background rectangle string."""
+
+        if self.color in ("white", ""):
+            return ""
+
+        return "".join(
+            [
+                "\\begin{pgfonlayer}{background}\n",
+                f"\\coordinate (sw) at ($({self.id}.south west)+(-1mm, -1mm)$);\n",
+                f"\\coordinate (ne) at ($({self.id}.north east)+(1mm, 1mm)$);\n",
+                f"\\draw[{self.color}, thick] (sw) rectangle (ne);\n",
+                "\\end{pgfonlayer}\n",
+            ]
+        )
+
+    @property
+    def label(self) -> str:
+        """Series label string."""
+
+        if len(self.text) == 0:
+            return ""
+
+        return "".join(
+            [
+                f"\\coordinate (nw) at ($({self.id}.north west)+(-1mm, 1mm)$);\n",
+                f"\\coordinate (ne) at ($({self.id}.north east)+(1mm, 1mm)$);\n",
+                f"\\coordinate (n) at ($({self.id}.north)+(0mm, 1mm)$);\n",
+                f"\\draw[{self.color}, fill={self.color}!50, thick] (nw) ",
+                "rectangle ($(ne)+(0, 0.5cm)$);\n",
+                f"\\node[anchor=south] at (n) {{{self.text}}};\n",
+            ]
+        )
+
+    def get_node(self, connector_position: float = 0.25) -> str:
+        """Get TikZ node string."""
+
+        block_nodes = "\n".join(
+            block.get_node(connector_position) for block in self.blocks
+        )
+        series_node = "".join(
+            [
+                f"\\node[{self.tikz_options}]",
+                f"({self.id})",
+                self.position,
+                "{\\begin{tikzpicture}\n",
+                block_nodes,
+                "\\end{tikzpicture}};\n\n",
+                self.arrow(connector_position),
+                self.background,
+                self.label,
+            ]
+        )
+        return series_node
+
+
+class Group(Block):
+    """Group of `Block` instances for vertical stacking.
+
+    Parameters
+    ----------
+    blocks : list[Block]
+        list of `Block` instances
+    parent : Block, optional
+        parent `Block` instance
+    """
+
+    shift_scale = 0.8
+    tikz_options: str = ", ".join(
+        [
+            "anchor=west",
+        ]
+    )
+
+    def __init__(self, blocks: list["Block"], parent: Optional["Block"] = None) -> None:
+        Block.__init__(self, "", "", parent)
+
+        self.blocks = blocks
+        for i, (block, shift) in enumerate(zip(self.blocks, self.shifts)):
+            block.shift = (0, shift)
+            block.parent = self
+            block.id = f"{self.id}-{i}"
+
+    @property
+    def shifts(self) -> list[float]:
+        """List of vertical position shifts for each `Block` instance in group."""
+
+        n_blocks = len(self.blocks)
+
+        return list(
+            self.shift_scale
+            * linspace(n_blocks / 2, -n_blocks / 2, n_blocks, dtype="float")
+        )
+
+    @property
+    def position(self) -> str:
+        """Group position."""
+
+        if self.parent is None:
+            return ""
+
+        return f"[right=0.5cm of {self.parent.id}, xshift=0.0cm]"
+
+    def arrow(self, connector_position: float) -> str:
+        """Get TikZ arrow string."""
+
+        if self.parent is None:
+            return ""
+
+        return f"\\draw[thick] ({self.parent.id}.east) to ({self.id}.west);\n"
+
+    @property
+    def arrows(self) -> str:
+        """Get TikZ arrow string."""
+
+        return "\n".join(
+            [
+                " ".join(
+                    [
+                        "\\draw[thick, rectangle line]",
+                        f"({block1.id}.east) to ({block2.id}.east);\n",
+                    ]
+                )
+                for (block1, block2) in combinations(self.blocks, 2)
+            ]
+        )
+
+    def get_node(self, connector_position: float = 0.0) -> str:
+        """Get TikZ node string."""
+
+        block_nodes = "\n".join(
+            block.get_node(connector_position) for block in self.blocks
+        )
+
+        group_node = "".join(
+            [
+                f"\\node[anchor=west, outer sep=0pt, inner sep=0pt, align=center] ({self.id}) ",
+                self.position,
+                "{\\begin{tikzpicture}\n",
+                f"\\coordinate ({self.id}) at (0, 0);\n",
+                block_nodes,
+                self.arrows,
+                "\\end{tikzpicture}};\n\n",
+                self.arrow(connector_position),
+            ]
+        )
+
+        return group_node
