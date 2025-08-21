@@ -12,10 +12,15 @@ actuator1 = Block(r"Actutator 1", "yellow!50")
 actuator2 = Block(r"Actutator 2", "yellow!50")
 valve1 = Block(r"Valve 1\\ CLOSED", "yellow!50")
 valve2 = Block(r"Valve 2\\ CLOSED", "yellow!50")
-valves = Group([actuator1 + valve1, actuator2 + valve2], parent=logic)
-valve5 = Block(r"Valve\\ CLOSED", "yellow!50")
-valve6 = Block(r"Valve\\ CLOSED", "yellow!50")
-series = Series([valve5, valve6], "Valve block", "yellow", parent=valves)
+valves = Group(
+    [actuator1 + valve1, actuator2 + valve2],
+    parent=logic,
+    text="Valve group",
+    color="yellow",
+)
+valve3 = Block(r"Valve\\ CLOSED", "orange!50")
+valve4 = Block(r"Valve\\ CLOSED", "orange!50")
+series = Series([valve3, valve4], "Valve series", "orange", parent=valves)
 psd = Block("Valves shut OFF", "green!50", parent=series)
 
 

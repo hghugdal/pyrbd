@@ -1,17 +1,8 @@
-# Welcome to MkDocs
+# Welcome to PyRBD Docs
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+<img alt="Python" src="https://img.shields.io/badge/Python-3.11, 3.12, 3.13-blue?logo=python&link=None"> <img alt="Tests" src="https://img.shields.io/badge/Tests-Passing-darkgreen?logo=pytest&link=None"> <img alt="Coverage" src="https://img.shields.io/badge/Coverage-100%25-darkgreen?link=None"> <img alt="Pylint" src="https://img.shields.io/badge/Pylint-10%2F10-darkgreen?link=None">
 
-## Commands
+`PyRBD` is a Python package for creating simple reliability block diagrams using `LaTeX` and [`TikZ`](https://en.wikipedia.org/wiki/PGF/TikZ).
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+## Dependencies
+`PyRBD` requires a working installation of `LaTeX` including [`latexmk`](https://ctan.org/pkg/latexmk/).

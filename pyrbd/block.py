@@ -1,10 +1,8 @@
-"""Module containing Block class definition."""
+"""Module containing Block, Series and Group class definitions."""
 
 from typing import Optional
 from itertools import combinations
 from copy import deepcopy
-
-from numpy import linspace
 
 
 class Block:
@@ -23,18 +21,6 @@ class Block:
 
     Attributes
     ----------
-    text : str
-        block text string
-    color : str
-        block color
-    parent : Block | None
-        parent `Block` instance or `None`
-    id : str
-        block identifier string
-    shift : tuple[float, float]
-        additional position shift relative to `parent` `Block` instance
-    position : str
-        string defining the block position
     tikz_options : str
         TikZ node formatting options
 
@@ -77,7 +63,7 @@ class Block:
 
     @property
     def position(self) -> str:
-        """Block position."""
+        """Block position TikZ string."""
 
         if self.parent is None:
             return ""
@@ -85,7 +71,19 @@ class Block:
         return f"[right={0.5 + self.shift[0]}cm of {self.parent.id}, yshift={self.shift[1]}cm]"
 
     def arrow(self, connector_position: float) -> str:
-        """Get TikZ arrow string."""
+        """Get TikZ arrow string.
+
+
+        Parameters
+        ----------
+        connector_position : float
+            distance in cm to right angle bend in connector
+
+        Returns
+        -------
+        str
+            TikZ string for arrow from `parent` to `self` or empty string if `parent` is `None`
+        """
 
         if self.parent is None:
             return ""
@@ -98,7 +96,18 @@ class Block:
         )
 
     def get_node(self, connector_position: float = 0.25) -> str:
-        """Get TikZ node string."""
+        """Get TikZ node string.
+
+        Parameters
+        ----------
+        connector_position : float, default: 0.25
+            distance in cm to right angle bend in connector
+
+        Returns
+        -------
+        str
+            TikZ string for rendering block
+        """
 
         node = "".join(
             [
@@ -113,16 +122,54 @@ class Block:
         return node
 
     def __add__(self, block: "Block") -> "Series":
-        """Add two `Block` instances to make a `Series` instance."""
+        """Add two `Block` instances to make a `Series` instance.
+
+        Parameters
+        ----------
+        block : Block
+            another `Block` instance
+
+        Returns
+        -------
+        Series
+            `Series` instance with `blocks = [self, block]`
+
+        Raises
+        ------
+        TypeError
+            If `block` is not an instance of `Block`
+        """
+
+        if not isinstance(block, Block):
+            raise TypeError(
+                f"cannot add object of type {type(block)=} to Block instance."
+            )
 
         return Series([self, block], parent=self.parent)
 
     def __mul__(self, value: int) -> "Group":
-        """Multiply `Block` instance by `value` to make `Group` with repeated blocks."""
+        """Multiply `Block` instance by `value` to make `Group` with repeated blocks.
 
-        blocks: list[Block] = []
-        while len(blocks) < value:
-            blocks.append(deepcopy(self))
+        Parameters
+        ----------
+        value : int
+            multiplicative factor
+
+        Returns
+        -------
+        Group
+            `Group` instance with `value` copies of block
+
+        Raises
+        ------
+        ValueError
+            If `value` is not a positive integer
+        """
+
+        if not isinstance(value, int) or value <= 0:
+            raise ValueError("Multiplicative factor `value` must be a positive integer")
+
+        blocks: list[Block] = [deepcopy(self) for _ in range(value)]
 
         return Group(blocks, parent=self.parent)
 
@@ -138,13 +185,18 @@ class Series(Block):
         list of `Block` instances
     text: str, optional
         series label text
-    color: str, default: 'white'
+    color: str, optional
         series color
-    parent : Block, optional
+    parent : Optional[Block]
         parent `Block` instance
+
+    Attributes
+    ----------
+    tikz_options : str
+        TikZ node options
+
     """
 
-    shift_scale = 0.8
     tikz_options: str = ", ".join(
         [
             "anchor=west",
@@ -156,10 +208,10 @@ class Series(Block):
 
     def __init__(
         self,
-        blocks: list["Block"],
+        blocks: list[Block],
         text: str = "",
-        color: str = "white",
-        parent: Optional["Block"] = None,
+        color: str = "",
+        parent: Optional[Block] = None,
     ) -> None:
         Block.__init__(self, text, color, parent)
 
@@ -173,7 +225,7 @@ class Series(Block):
 
     @property
     def background(self) -> str:
-        """Background rectangle string."""
+        """Background rectangle TikZ string."""
 
         if self.color in ("white", ""):
             return ""
@@ -207,7 +259,19 @@ class Series(Block):
         )
 
     def get_node(self, connector_position: float = 0.25) -> str:
-        """Get TikZ node string."""
+        """Get TikZ node string.
+
+        Parameters
+        ----------
+        connector_position : float, default: 0.25
+            distance in cm to right angle bend in connector
+
+        Returns
+        -------
+        str
+            TikZ string for rendering series
+
+        """
 
         block_nodes = "\n".join(
             block.get_node(connector_position) for block in self.blocks
@@ -235,19 +299,36 @@ class Group(Block):
     ----------
     blocks : list[Block]
         list of `Block` instances
-    parent : Block, optional
+    text : str, optional
+        group label text
+    color : str, optional
+        group color
+    parent : Optional[Block]
         parent `Block` instance
+
+    Attributes
+    ----------
+    shift_scale : float
+        scaling factor for vertical shifts of blocks
+    tikz_options : str
+        TikZ node options
     """
 
-    shift_scale = 0.8
+    shift_scale: float = 1.2
     tikz_options: str = ", ".join(
         [
             "anchor=west",
         ]
     )
 
-    def __init__(self, blocks: list["Block"], parent: Optional["Block"] = None) -> None:
-        Block.__init__(self, "", "", parent)
+    def __init__(
+        self,
+        blocks: list[Block],
+        text: str = "",
+        color: str = "",
+        parent: Optional[Block] = None,
+    ) -> None:
+        Block.__init__(self, text, color, parent)
 
         self.blocks = blocks
         for i, (block, shift) in enumerate(zip(self.blocks, self.shifts)):
@@ -257,26 +338,66 @@ class Group(Block):
 
     @property
     def shifts(self) -> list[float]:
-        """List of vertical position shifts for each `Block` instance in group."""
+        """List of vertical position shifts for each `Block` instance in group.
+
+        Returns
+        -------
+        list[float]
+            list of vertical position shifts for each `Block` instance in group
+        """
 
         n_blocks = len(self.blocks)
 
-        return list(
-            self.shift_scale
-            * linspace(n_blocks / 2, -n_blocks / 2, n_blocks, dtype="float")
+        return list(-self.shift_scale * n for n in range(n_blocks))
+
+    @property
+    def background(self) -> str:
+        """Background rectangle TikZ string."""
+
+        if self.color in ("white", ""):
+            return ""
+
+        return "".join(
+            [
+                "\\begin{pgfonlayer}{background}\n",
+                f"\\coordinate (sw) at ($({self.id}.south west)+(-1mm, -1mm)$);\n",
+                f"\\coordinate (ne) at ($({self.id}.north east)+(1mm, 1mm)$);\n",
+                f"\\draw[{self.color}, thick] (sw) rectangle (ne);\n",
+                "\\end{pgfonlayer}\n",
+            ]
         )
 
     @property
-    def position(self) -> str:
-        """Group position."""
+    def label(self) -> str:
+        """Series label string."""
 
-        if self.parent is None:
+        if len(self.text) == 0:
             return ""
 
-        return f"[right=0.5cm of {self.parent.id}, xshift=0.0cm]"
+        return "".join(
+            [
+                f"\\coordinate (nw) at ($({self.id}.north west)+(-1mm, 1mm)$);\n",
+                f"\\coordinate (ne) at ($({self.id}.north east)+(1mm, 1mm)$);\n",
+                f"\\coordinate (n) at ($({self.id}.north)+(0mm, 1mm)$);\n",
+                f"\\draw[{self.color}, fill={self.color}!50, thick] (nw) ",
+                "rectangle ($(ne)+(0, 0.5cm)$);\n",
+                f"\\node[anchor=south] at (n) {{{self.text}}};\n",
+            ]
+        )
 
     def arrow(self, connector_position: float) -> str:
-        """Get TikZ arrow string."""
+        """Get TikZ arrow string.
+
+        Parameters
+        ----------
+        connector_position : float
+            distance in cm to right angle bend in connector (not used in `Group` class)
+
+        Returns
+        -------
+        str
+            TikZ string for arrow from `parent` to `self` or empty string if `parent` is `None`
+        """
 
         if self.parent is None:
             return ""
@@ -285,7 +406,7 @@ class Group(Block):
 
     @property
     def arrows(self) -> str:
-        """Get TikZ arrow string."""
+        """Get TikZ string for arrow connecting stacked blocks."""
 
         return "\n".join(
             [
@@ -300,7 +421,18 @@ class Group(Block):
         )
 
     def get_node(self, connector_position: float = 0.0) -> str:
-        """Get TikZ node string."""
+        """Get TikZ node string.
+
+        Parameters
+        ----------
+        connector_position : float, default: 0.0
+            distance in cm to right angle bend in connector
+
+        Returns
+        -------
+        str
+            TikZ string for rendering group
+        """
 
         block_nodes = "\n".join(
             block.get_node(connector_position) for block in self.blocks
@@ -316,6 +448,8 @@ class Group(Block):
                 self.arrows,
                 "\\end{tikzpicture}};\n\n",
                 self.arrow(connector_position),
+                self.background,
+                self.label,
             ]
         )
 

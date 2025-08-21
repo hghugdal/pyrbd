@@ -37,8 +37,6 @@ nav:
   - Reference:
     - Reference: reference/index.md
     - reference/block.md
-    - reference/series.md
-    - reference/group.md
     - reference/diagram.md
 
 plugins:

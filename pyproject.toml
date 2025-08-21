@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyrbd"
-version = "0.1.0"
+version = "0.2.0"
 description = "Package for creating simple reliability block diagrams using LaTeX TikZ."
 readme = "README.md"
 authors = [
@@ -12,9 +12,7 @@ authors = [
 ]
 requires-python = ">=3.11"
 license = "MIT"
-dependencies = [
-    "numpy>=2.3.2",
-]
+dependencies = []
 
 [project.urls]
 Repository = "https://github.com/hghugdal/pyrbd"
