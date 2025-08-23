@@ -19,8 +19,20 @@ def diagram_fixture() -> Diagram:
 def test_diagram_init(diagram: Diagram) -> None:
     """Test __init__ of `Diagram` class."""
 
-    assert diagram.name == "test_diagram.tex"
+    assert diagram.filename == "test_diagram.tex"
     assert isinstance(diagram.head, Block)
+
+
+def test_diagram_wo_hazard() -> None:
+    """Test __init__ of `Diagram` class without `hazard` specified."""
+
+    head = Block("block1", "white")
+    blocks = [head, Block("block2", "blue"), Block("block3", "green")]
+    diagram = Diagram("test_diagram", blocks)
+
+    # When hazard is not specified, blocks[0] is set as head of diagram
+    assert diagram.head is head
+    assert len(diagram.blocks) == 2
 
 
 def test_diagram_write(tmp_path, diagram: Diagram) -> None:
@@ -33,7 +45,7 @@ def test_diagram_write(tmp_path, diagram: Diagram) -> None:
 
     diagram.write()
 
-    tmp_file = temp_dir / diagram.name
+    tmp_file = temp_dir / diagram.filename
 
     assert TEX_PREAMBLE in tmp_file.read_text()
     assert TEX_END in tmp_file.read_text()
