@@ -1,8 +1,10 @@
-site_name: PyRBD Docs
+site_name: pyRBD Docs
 repo_url: https://github.com/hghugdal/pyrbd
 
 theme:
   name: "material"
+  logo: images/logo.svg
+  favicon: images/logo.png
   features:
     - navigation.instant
     - navigation.tabs
@@ -21,11 +23,13 @@ theme:
   palette:
   - media: "(prefers-color-scheme: light)"
     scheme: default
+    primary: deep orange
     toggle:
       icon: material/toggle-switch-off-outline
       name: Switch to dark mode
   - media: "(prefers-color-scheme: dark)"
     scheme: slate
+    primary: amber
     toggle:
       icon: material/toggle-switch
       name: Switch to light mode
@@ -54,5 +58,13 @@ plugins:
 
 markdown_extensions:
   - pymdownx.highlight
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+      - name: python
+        class: python
+        validator: !!python/name:markdown_exec.validator
+        format: !!python/name:markdown_exec.formatter
   - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      check_paths: true
+      base_path: [docs/examples, "."]
