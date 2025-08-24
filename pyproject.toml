@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyrbd"
-version = "0.2.1"
+version = "0.2.2"
 description = "Package for creating simple reliability block diagrams (RBDs) using LaTeX and TikZ."
 readme = "README.md"
 authors = [
     {name = "hghugdal", email = "hghugdal@gmail.com"},
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 license = "MIT"
 dependencies = []
 
@@ -49,6 +49,7 @@ dev = [
     "mypy>=1.17.1",
     "pydoclint>=0.6.8",
     "pylint>=3.3.8",
+    "pymupdf>=1.26.3",
     "pytest>=8.4.1",
     "ruff>=0.12.8",
     "ty>=0.0.1a18",

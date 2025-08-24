@@ -45,6 +45,8 @@ nav:
 
 plugins:
   - search
+  - offline
+  - markdown-exec
   - mkdocstrings:
       handlers:
         python:
@@ -54,7 +56,6 @@ plugins:
             parameter_headings: false
             show_symbol_type_heading: true
             docstring_style: "numpy"
-  - offline
 
 markdown_extensions:
   - pymdownx.highlight
