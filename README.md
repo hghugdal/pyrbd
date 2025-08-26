@@ -1,4 +1,4 @@
-# <img alt="pyRBDlogo" src=docs/images/logo.svg width=35 align=center> pyRBD
+# <img alt="pyRBDlogo" src=docs/images/logo.svg width=40 align=top> pyRBD
 
 <img alt="Python" src="https://img.shields.io/badge/Python-3.11, 3.12, 3.13-blue?logo=python&link=None"> <img alt="Tests" src="https://img.shields.io/badge/Tests-Passing-darkgreen?logo=pytest&link=None"> <img alt="Coverage" src="https://img.shields.io/badge/Coverage-100%25-darkgreen?link=None"> <img alt="Pylint" src="https://img.shields.io/badge/Pylint-10%2F10-darkgreen?link=None">
 
@@ -24,5 +24,5 @@ diagram.write()
 diagram.compile()
 ```
 producing the following diagram
-![Simple RBD diagram](docs/examples/simple_RBD.png)
+<div><img src="docs/examples/simple_RBD.svg" width=500/></div>
 For more examples, visit the documentation.
