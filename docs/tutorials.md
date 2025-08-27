@@ -1,7 +1,7 @@
 
 ## Simple diagram
 ```python linenums="1" exec="on" source="above" workdir="docs/examples"
---8<-- "examples/simple_rbd.py:5:5,8:"
+--8<-- "simple_rbd.py:5:5,8:"
 ```
 
 ```python exec="on" html="on" workdir="docs/examples"
@@ -26,7 +26,7 @@ doc.close()
 ## Example with more functionality
 
 ```python linenums="1" exec="on" source="above" workdir="docs/examples"
---8<-- "examples/example_rbd.py:5:5,8:"
+--8<-- "example_rbd.py:5:5,8:"
 ```
 
 ```python exec="on" html="on" workdir="docs/examples"
