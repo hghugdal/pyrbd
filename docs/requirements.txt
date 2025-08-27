@@ -1,0 +1,6 @@
+mkdocs-material==9.6.16
+mkdocstrings[python]==0.30.0
+Pygments==2.18.0
+pymdown-extensions==10.12
+Markdown==3.7
+markdown-exec==1.11.0
