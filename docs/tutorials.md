@@ -1,7 +1,7 @@
 
 ## Simple diagram
 ```python linenums="1" exec="0" source="above"
---8<-- "examples/simple_rbd.py:5:5,8:"
+--8<-- "docs/examples/simple_rbd.py:5:5,8:"
 ```
 
 ```python exec="on" html="on" workdir="docs/examples"
@@ -20,13 +20,13 @@ with open("simple_RBD.svg", "w", encoding="utf-8") as f:
 doc.close()
 ```
 
-<image width="500" src='examples/simple_RBD.svg'/>
+<image width="500" src='docs/examples/simple_RBD.svg'/>
 
 
 ## Example with more functionality
 
 ```python linenums="1" exec="0" source="above"
---8<-- "examples/example_rbd.py:5:5,8:"
+--8<-- "docs/examples/example_rbd.py:5:5,8:"
 ```
 
 ```python exec="on" html="on" workdir="docs/examples"
@@ -45,4 +45,4 @@ with open("example_RBD.svg", "w", encoding="utf-8") as f:
 doc.close()
 ```
 
-<image width="1000" src='examples/example_RBD.svg'/>
+<image width="1000" src='docs/examples/example_RBD.svg'/>
