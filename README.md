@@ -25,4 +25,5 @@ diagram.compile()
 ```
 producing the following diagram
 <div><img src="docs/examples/simple_RBD.svg" width=500/></div>
-For more examples, visit the documentation.
+
+For more examples, visit the [documentation](https://hghugdal.github.io/pyrbd/).

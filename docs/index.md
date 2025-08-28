@@ -25,4 +25,4 @@ diagram.compile()
 ```
 producing the following diagram
 
-<img src="examples/simple_RBD.png" width=600>
+<div><img src="examples/simple_RBD.svg" width=500/></div>
