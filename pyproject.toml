@@ -48,6 +48,7 @@ testpaths = [
 [dependency-groups]
 dev = [
     "coverage>=7.10.3",
+    "markdown-exec[ansi]>=1.11.0",
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.16",
     "mkdocstrings[python]>=0.30.0",
