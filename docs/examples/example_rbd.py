@@ -30,4 +30,4 @@ diag = Diagram(
     hazard="Hazard",
 )
 diag.write()
-diag.compile()
+diag.compile(["svg", "png"])

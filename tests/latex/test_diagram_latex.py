@@ -28,4 +28,8 @@ def test_diagram_compile(tmp_path, diagram: Diagram) -> None:
         diagram.compile()
 
     diagram.write()
-    diagram.compile()
+    assert ".pdf" in "\n".join(diagram.compile(clear_source=False))
+    assert ".svg" in "\n".join(diagram.compile("svg", clear_source=False))
+    assert ".png" in "\n".join(diagram.compile("png", clear_source=False))
+    assert ".pdf" not in "\n".join(diagram.compile(["svg", "png"], clear_source=False))
+    assert ".pdf" in "\n".join(diagram.compile(["pdf", "svg"]))
