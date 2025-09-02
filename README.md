@@ -1,15 +1,15 @@
 # <img alt="pyRBDlogo" src=docs/images/logo.svg width=40 align=top> pyRBD
 
-<img alt="Python" src="https://img.shields.io/badge/Python-3.11, 3.12, 3.13-blue?logo=python&link=None"> <img alt="Tests" src="https://img.shields.io/badge/Tests-Passing-darkgreen?logo=pytest&link=None"> <img alt="Coverage" src="https://img.shields.io/badge/Coverage-100%25-darkgreen?link=None"> <img alt="Pylint" src="https://img.shields.io/badge/Pylint-10%2F10-darkgreen?link=None">
+<img alt="Python" src="https://img.shields.io/badge/Python->= 3.9-blue?logo=python&link=None"> <img alt="Tests" src="https://img.shields.io/badge/Tests-Passing-darkgreen?logo=pytest&link=None"> <img alt="Coverage" src="https://img.shields.io/badge/Coverage-100%25-darkgreen?link=None"> <img alt="Pylint" src="https://img.shields.io/badge/Pylint-10%2F10-darkgreen?link=None">
 
 A Python package for creating simple reliability block diagrams (RBDs) using `LaTeX` and [`TikZ`](https://en.wikipedia.org/wiki/PGF/TikZ).
 
 ## Dependencies
-`pyRBD` requires a working installation of `LaTeX` including [`latexmk`](https://ctan.org/pkg/latexmk/).
+`pyRBD` requires a working installation of `LaTeX` including [`TikZ`](https://en.wikipedia.org/wiki/PGF/TikZ) and [`latexmk`](https://ctan.org/pkg/latexmk/).
 
 ## Simple example diagram
 The blocks of the RBD are defined using `Block`, `Series` and `Group`, and the diagram itself is handled by the `Diagram` class. A simple example is given by the code
-```python
+```python linenums="1"
 from pyrbd import Block, Diagram
 
 start_block = Block("Start", "blue!30", parent=None)

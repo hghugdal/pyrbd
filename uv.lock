@@ -800,8 +800,11 @@ wheels = [
 
 [[package]]
 name = "pyrbd"
-version = "0.2.2"
+version = "0.2.3"
 source = { editable = "." }
+dependencies = [
+    { name = "pymupdf" },
+]
 
 [package.dev-dependencies]
 dev = [
@@ -820,6 +823,7 @@ dev = [
 ]
 
 [package.metadata]
+requires-dist = [{ name = "pymupdf", specifier = ">=1.26.3" }]
 
 [package.metadata.requires-dev]
 dev = [

@@ -1,10 +1,10 @@
 """Simple RBD example."""
 
-# from os import path, chdir
+from os import path, chdir
 
 from pyrbd import Block, Diagram
 
-# chdir(path.dirname(__file__))
+chdir(path.dirname(__file__))
 
 start_block = Block("Start", "blue!30", parent=None)
 parallel = 2 * Block("Parallel blocks", "gray", parent=start_block)
@@ -16,3 +16,4 @@ diagram = Diagram(
 )
 diagram.write()
 diagram.compile()
+diagram.to_svg()

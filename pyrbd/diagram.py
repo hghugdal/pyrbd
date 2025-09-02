@@ -2,6 +2,8 @@
 
 import subprocess
 
+import pymupdf
+
 from .block import Block
 
 
@@ -13,13 +15,13 @@ class Diagram:
     name : str
         name of diagram
     blocks : list[Block]
-        (nested) list of `Block` instances
+        list of `Block` instances
     hazard : str, optional
         string defining the `hazard` block text
     """
 
     def __init__(self, name: str, blocks: list[Block], hazard: str = "") -> None:
-        self.filename = f"{name}.tex"
+        self.filename = name
         if hazard:
             self.head = Block(hazard, "red!60")
         else:
@@ -32,14 +34,78 @@ class Diagram:
     def write(self) -> None:
         """Write diagram to .tex file."""
 
-        with open(self.filename, mode="w", encoding="utf-8") as file:
+        with open(f"{self.filename}.tex", mode="w", encoding="utf-8") as file:
             file.write(TEX_PREAMBLE)
             for block in [self.head, *self.blocks]:
                 file.write(block.get_node())
             file.write(TEX_END)
 
-    def compile(self) -> None:
+    def to_svg(self) -> str:
+        """Convert diagram file from pdf to svg.
+
+        Returns
+        -------
+        str
+            filename of .svg file
+        """
+
+        pdf_document = pymupdf.open(f"{self.filename}.pdf")
+        page = pdf_document[0]
+
+        # Get and convert page to svg image
+        svg_content = page.get_svg_image()
+
+        # Save to file
+        with open(output_file := f"{self.filename}.svg", "w", encoding="utf-8") as file:
+            file.write(svg_content)
+
+        pdf_document.close()
+
+        return output_file
+
+    def to_png(self) -> str:
+        """Convert diagram file from pdf to png.
+
+        Returns
+        -------
+        str
+            filename of .png file
+        """
+
+        pdf_document = pymupdf.open(f"{self.filename}.pdf")
+        page = pdf_document[0]
+
+        # Get image
+        image = page.get_pixmap(dpi=300)  # type: ignore
+
+        # Save to file
+        image.save(output_file := f"{self.filename}.png")
+
+        pdf_document.close()
+
+        return output_file
+
+    def compile(
+        self, output: str | list[str] = "pdf", clear_source: bool = True
+    ) -> list[str]:
         """Compile diagram .tex file.
+
+        Parameters
+        ----------
+        output : str | list[str], default: 'pdf
+            output format string or list of output formats for diagram. Valid output formats are
+
+            - 'pdf' (default)
+            - 'svg'
+            - 'png'
+
+        clear_source : bool, default: True
+            .tex source file is deleted after compilation if `True`
+
+        Returns
+        -------
+        list[str]
+            list of output filenames
 
         Raises
         ------
@@ -49,9 +115,10 @@ class Diagram:
         """
 
         try:
-            subprocess.check_call(["latexmk", self.filename])
-            subprocess.check_call(["latexmk", "-c", self.filename])
-            subprocess.check_call(["rm", self.filename])
+            subprocess.check_call(["latexmk", f"{self.filename}.tex", "--silent"])
+            subprocess.check_call(["latexmk", "-c", f"{self.filename}.tex"])
+            if clear_source:
+                subprocess.check_call(["rm", f"{self.filename}.tex"])
         except subprocess.CalledProcessError as err:
             if err.returncode == 11:
                 raise FileNotFoundError(
@@ -60,6 +127,22 @@ class Diagram:
                         + "Check if call to Class method write() is missing."
                     )
                 ) from err
+
+        output_files: list[str] = []
+
+        if not isinstance(output, list):
+            output = [output]
+
+        if "svg" in output:
+            output_files.append(self.to_svg())
+        if "png" in output:
+            output_files.append(self.to_png())
+        if "pdf" not in output:
+            subprocess.check_call(["rm", f"{self.filename}.pdf"])
+        else:
+            output_files.append(f"{self.filename}.pdf")
+
+        return output_files
 
 
 TEX_PREAMBLE = "\n".join(

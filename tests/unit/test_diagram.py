@@ -19,7 +19,7 @@ def diagram_fixture() -> Diagram:
 def test_diagram_init(diagram: Diagram) -> None:
     """Test __init__ of `Diagram` class."""
 
-    assert diagram.filename == "test_diagram.tex"
+    assert diagram.filename == "test_diagram"
     assert isinstance(diagram.head, Block)
 
 
@@ -45,7 +45,7 @@ def test_diagram_write(tmp_path, diagram: Diagram) -> None:
 
     diagram.write()
 
-    tmp_file = temp_dir / diagram.filename
+    tmp_file = temp_dir / f"{diagram.filename}.tex"
 
     assert TEX_PREAMBLE in tmp_file.read_text()
     assert TEX_END in tmp_file.read_text()
