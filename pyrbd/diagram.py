@@ -40,7 +40,7 @@ class Diagram:
                 file.write(block.get_node())
             file.write(TEX_END)
 
-    def to_svg(self) -> str:
+    def _to_svg(self) -> str:
         """Convert diagram file from pdf to svg.
 
         Returns
@@ -63,7 +63,7 @@ class Diagram:
 
         return output_file
 
-    def to_png(self) -> str:
+    def _to_png(self) -> str:
         """Convert diagram file from pdf to png.
 
         Returns
@@ -92,12 +92,12 @@ class Diagram:
 
         Parameters
         ----------
-        output : str | list[str], default: 'pdf
+        output : str | list[str], default: 'pdf'
             output format string or list of output formats for diagram. Valid output formats are
 
-            - 'pdf' (default)
-            - 'svg'
-            - 'png'
+            - `'pdf'` (default)
+            - `'svg'`
+            - `'png'`
 
         clear_source : bool, default: True
             .tex source file is deleted after compilation if `True`
@@ -134,9 +134,9 @@ class Diagram:
             output = [output]
 
         if "svg" in output:
-            output_files.append(self.to_svg())
+            output_files.append(self._to_svg())
         if "png" in output:
-            output_files.append(self.to_png())
+            output_files.append(self._to_png())
         if "pdf" not in output:
             subprocess.check_call(["rm", f"{self.filename}.pdf"])
         else:

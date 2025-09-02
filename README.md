@@ -1,6 +1,6 @@
 # <img alt="pyRBDlogo" src=docs/images/logo.svg width=40 align=top> pyRBD
 
-<img alt="Python" src="https://img.shields.io/badge/Python->= 3.9-blue?logo=python&link=None"> <img alt="Tests" src="https://img.shields.io/badge/Tests-Passing-darkgreen?logo=pytest&link=None"> <img alt="Coverage" src="https://img.shields.io/badge/Coverage-100%25-darkgreen?link=None"> <img alt="Pylint" src="https://img.shields.io/badge/Pylint-10%2F10-darkgreen?link=None">
+<img alt="Python" src="https://img.shields.io/badge/Python->= 3.10-blue?logo=python&link=None"> <img alt="Tests" src="https://img.shields.io/badge/Tests-Passing-darkgreen?logo=pytest&link=None"> <img alt="Coverage" src="https://img.shields.io/badge/Coverage-100%25-darkgreen?link=None"> <img alt="Pylint" src="https://img.shields.io/badge/Pylint-10%2F10-darkgreen?link=None">
 
 A Python package for creating simple reliability block diagrams (RBDs) using `LaTeX` and [`TikZ`](https://en.wikipedia.org/wiki/PGF/TikZ).
 

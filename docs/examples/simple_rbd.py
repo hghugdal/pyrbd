@@ -15,5 +15,4 @@ diagram = Diagram(
     blocks=[start_block, parallel, end_block],
 )
 diagram.write()
-diagram.compile()
-diagram.to_svg()
+diagram.compile(["pdf", "svg"])
