@@ -40,13 +40,15 @@ class Block:
             "anchor=west",
             "align=center",
             "fill={fill_color}",
-            "draw=black",
+            "draw=black!70!gray",
             "minimum height=1cm",
             "rounded corners=0.3mm",
             "inner sep=4pt",
             "outer sep=0pt",
         ]
     )
+
+    arrow_options: str = "arrowcolor, thick"
 
     def __init__(
         self,
@@ -90,7 +92,7 @@ class Block:
 
         return "".join(
             [
-                f"\\draw[thick, rectangle connector={connector_position}cm]",
+                f"\\draw[{self.arrow_options}, rectangle connector={connector_position}cm]",
                 f"({self.parent.id}.east) to ({self.id}.west);\n\n",
             ]
         )
@@ -402,7 +404,7 @@ class Group(Block):
         if self.parent is None:
             return ""
 
-        return f"\\draw[thick] ({self.parent.id}.east) to ({self.id}.west);\n"
+        return f"\\draw[{self.arrow_options}] ({self.parent.id}.east) to ({self.id}.west);\n"
 
     @property
     def arrows(self) -> str:
@@ -412,7 +414,7 @@ class Group(Block):
             [
                 " ".join(
                     [
-                        "\\draw[thick, rectangle line]",
+                        f"\\draw[{self.arrow_options}, rectangle line]",
                         f"({block1.id}.east) to ({block2.id}.east);\n",
                     ]
                 )

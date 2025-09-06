@@ -19,7 +19,7 @@ def test_block() -> None:
     assert child.id == "2"
     assert child.position == "[right=1.0cm of 1, yshift=2cm]"
     assert (
-        "\\draw[thick, rectangle connector=0.5cm](1.east) to (2.west);"
+        "\\draw[arrowcolor, thick, rectangle connector=0.5cm](1.east) to (2.west);"
         in child.arrow(0.5)
     )
 
