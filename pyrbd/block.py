@@ -3,6 +3,10 @@
 from typing import Optional
 from itertools import combinations
 from copy import deepcopy
+from collections import namedtuple
+
+
+Padding = namedtuple("Padding", ["n", "e", "s", "w"])
 
 
 class Block:
@@ -49,6 +53,7 @@ class Block:
     )
 
     arrow_options: str = "arrowcolor, thick"
+    arrow_length: float = 0.5
 
     def __init__(
         self,
@@ -70,7 +75,13 @@ class Block:
         if self.parent is None:
             return ""
 
-        return f"[right={0.5 + self.shift[0]}cm of {self.parent.id}, yshift={self.shift[1]}cm]"
+        return " ".join(
+            [
+                f"[right={self.arrow_length + self.shift[0]}cm",
+                f"of {self.parent.id},",
+                f"yshift={self.shift[1]}cm]",
+            ]
+        )
 
     def arrow(self, connector_position: float) -> str:
         """Get TikZ arrow string.
@@ -97,19 +108,22 @@ class Block:
             ]
         )
 
-    def get_node(self, connector_position: float = 0.25) -> str:
+    def get_node(self, connector_position: Optional[float] = None) -> str:
         """Get TikZ node string.
 
         Parameters
         ----------
-        connector_position : float, default: 0.25
-            distance in cm to right angle bend in connector
+        connector_position : Optional[float]
+            distance in cm to right angle bend in connector. Defaults to `0.5*arrow_length`.
 
         Returns
         -------
         str
             TikZ string for rendering block
         """
+
+        if connector_position is None:
+            connector_position = self.arrow_length / 2
 
         node = "".join(
             [
@@ -208,6 +222,10 @@ class Series(Block):
         ]
     )
 
+    internal_arrow_length = 0.3
+    pad = Padding(1, 1, 1, 2.5)
+    label_height = 5
+
     def __init__(
         self,
         blocks: list[Block],
@@ -219,11 +237,13 @@ class Series(Block):
 
         self.blocks = blocks
         self.blocks[0].id = f"{self.id}+0"
+        self.blocks[0].shift = (self.internal_arrow_length, 0)
         for i, (block, new_parent) in enumerate(
             zip(self.blocks[1::], self.blocks[0:-1]), start=1
         ):
             block.parent = new_parent
             block.id = f"{self.id}+{i}"
+            block.arrow_length = self.internal_arrow_length
 
     @property
     def background(self) -> str:
@@ -232,11 +252,13 @@ class Series(Block):
         if self.color in ("white", ""):
             return ""
 
+        pad = self.pad
+
         return "".join(
             [
                 "\\begin{pgfonlayer}{background}\n",
-                f"\\coordinate (sw) at ($({self.id}.south west)+(-1mm, -1mm)$);\n",
-                f"\\coordinate (ne) at ($({self.id}.north east)+(1mm, 1mm)$);\n",
+                f"\\coordinate (sw) at ($({self.id}.south west)+(-{pad.w}mm, -{pad.s}mm)$);\n",
+                f"\\coordinate (ne) at ($({self.id}.north east)+({pad.e}mm, {pad.n}mm)$);\n",
                 f"\\draw[{self.color}, thick] (sw) rectangle (ne);\n",
                 "\\end{pgfonlayer}\n",
             ]
@@ -249,24 +271,27 @@ class Series(Block):
         if len(self.text) == 0:
             return ""
 
+        pad = self.pad
+
         return "".join(
             [
-                f"\\coordinate (nw) at ($({self.id}.north west)+(-1mm, 1mm)$);\n",
-                f"\\coordinate (ne) at ($({self.id}.north east)+(1mm, 1mm)$);\n",
-                f"\\coordinate (n) at ($({self.id}.north)+(0mm, 1mm)$);\n",
+                f"\\coordinate (nw) at ($({self.id}.north west)+(-{pad.w}mm, {pad.n}mm)$);\n",
+                f"\\coordinate (ne) at ($({self.id}.north east)+({pad.e}mm, {pad.n}mm)$);\n",
+                "\\coordinate (n) at "
+                f"($({self.id}.north)+(0mm, {self.label_height / 2 + pad.n}mm)$);\n",
                 f"\\draw[{self.color}, fill={self.color}!50, thick] (nw) ",
-                "rectangle ($(ne)+(0, 0.5cm)$);\n",
-                f"\\node[anchor=south] at (n) {{{self.text}}};\n",
+                f"rectangle ($(ne)+(0, {self.label_height}mm)$);\n",
+                f"\\node[anchor=center, inner sep=0pt, outer sep=0pt] at (n) {{{self.text}}};\n",
             ]
         )
 
-    def get_node(self, connector_position: float = 0.25) -> str:
+    def get_node(self, connector_position: Optional[float] = None) -> str:
         """Get TikZ node string.
 
         Parameters
         ----------
-        connector_position : float, default: 0.25
-            distance in cm to right angle bend in connector
+        connector_position : Optional[float]
+            distance in cm to right angle bend in connector. Defaults to `0.5 * arrow_length`
 
         Returns
         -------
@@ -275,12 +300,15 @@ class Series(Block):
 
         """
 
+        if connector_position is None:
+            connector_position = self.arrow_length / 2
+
         block_nodes = "\n".join(
             block.get_node(connector_position) for block in self.blocks
         )
         series_node = "".join(
             [
-                f"\\node[{self.tikz_options}]",
+                f"%%% Series\n\\node[{self.tikz_options}]",
                 f"({self.id})",
                 self.position,
                 "{\\begin{tikzpicture}\n",
@@ -322,6 +350,9 @@ class Group(Block):
             "anchor=west",
         ]
     )
+    internal_arrow_length = 0.3
+    pad = Padding(1, 1, 1, 1)
+    label_height = 5
 
     def __init__(
         self,
@@ -337,6 +368,7 @@ class Group(Block):
             block.shift = (0, shift)
             block.parent = self
             block.id = f"{self.id}-{i}"
+            block.arrow_length = self.internal_arrow_length
 
     @property
     def shifts(self) -> list[float]:
@@ -359,11 +391,13 @@ class Group(Block):
         if self.color in ("white", ""):
             return ""
 
+        pad = self.pad
+
         return "".join(
             [
                 "\\begin{pgfonlayer}{background}\n",
-                f"\\coordinate (sw) at ($({self.id}.south west)+(-1mm, -1mm)$);\n",
-                f"\\coordinate (ne) at ($({self.id}.north east)+(1mm, 1mm)$);\n",
+                f"\\coordinate (sw) at ($({self.id}.south west)+(-{pad.w}mm, -{pad.s}mm)$);\n",
+                f"\\coordinate (ne) at ($({self.id}.north east)+({pad.e}mm, {pad.n}mm)$);\n",
                 f"\\draw[{self.color}, thick] (sw) rectangle (ne);\n",
                 "\\end{pgfonlayer}\n",
             ]
@@ -376,14 +410,17 @@ class Group(Block):
         if len(self.text) == 0:
             return ""
 
+        pad = self.pad
+
         return "".join(
             [
-                f"\\coordinate (nw) at ($({self.id}.north west)+(-1mm, 1mm)$);\n",
-                f"\\coordinate (ne) at ($({self.id}.north east)+(1mm, 1mm)$);\n",
-                f"\\coordinate (n) at ($({self.id}.north)+(0mm, 1mm)$);\n",
+                f"\\coordinate (nw) at ($({self.id}.north west)+(-{pad.w}mm, {pad.n}mm)$);\n",
+                f"\\coordinate (ne) at ($({self.id}.north east)+({pad.e}mm, {pad.n}mm)$);\n",
+                "\\coordinate (n) at ",
+                f"($({self.id}.north)+(0mm, {self.label_height / 2 + pad.n}mm)$);\n",
                 f"\\draw[{self.color}, fill={self.color}!50, thick] (nw) ",
-                "rectangle ($(ne)+(0, 0.5cm)$);\n",
-                f"\\node[anchor=south] at (n) {{{self.text}}};\n",
+                f"rectangle ($(ne)+(0, {self.label_height}mm)$);\n",
+                f"\\node[anchor=center, inner sep=0pt, outer sep=0pt] at (n) {{{self.text}}};\n",
             ]
         )
 
@@ -410,11 +447,14 @@ class Group(Block):
     def arrows(self) -> str:
         """Get TikZ string for arrow connecting stacked blocks."""
 
+        scaling = 0.75
+
         return "\n".join(
             [
                 " ".join(
                     [
-                        f"\\draw[{self.arrow_options}, rectangle line]",
+                        f"\\draw[{self.arrow_options},",
+                        f"rectangle line={scaling * self.internal_arrow_length}cm]",
                         f"({block1.id}.east) to ({block2.id}.east);\n",
                     ]
                 )
@@ -422,13 +462,14 @@ class Group(Block):
             ]
         )
 
-    def get_node(self, connector_position: float = 0.0) -> str:
+    def get_node(self, connector_position: Optional[float] = None) -> str:
         """Get TikZ node string.
 
         Parameters
         ----------
-        connector_position : float, default: 0.0
-            distance in cm to right angle bend in connector
+        connector_position : Optional[float]
+            distance in cm to right angle bend in connector.
+            Locked to 0.0 for `Group` class
 
         Returns
         -------
@@ -436,12 +477,15 @@ class Group(Block):
             TikZ string for rendering group
         """
 
+        connector_position = 0.0
+
         block_nodes = "\n".join(
             block.get_node(connector_position) for block in self.blocks
         )
 
         group_node = "".join(
             [
+                "%%% Group\n"
                 f"\\node[anchor=west, outer sep=0pt, inner sep=0pt, align=center] ({self.id}) ",
                 self.position,
                 "{\\begin{tikzpicture}\n",

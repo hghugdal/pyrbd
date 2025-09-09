@@ -143,7 +143,9 @@ class Diagram:
         """
 
         try:
-            subprocess.check_call(["latexmk", f"{self.filename}.tex", "--silent"])
+            subprocess.check_call(
+                ["latexmk", "--lualatex", f"{self.filename}.tex", "--silent"]
+            )
             subprocess.check_call(["latexmk", "-c", f"{self.filename}.tex"])
             if clear_source:
                 subprocess.check_call(["rm", f"{self.filename}.tex"])
