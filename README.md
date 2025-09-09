@@ -30,6 +30,6 @@ diagram.compile()
 ```
 
 producing the following diagram
-<div><img src="https://raw.githubusercontent.com/hghugdal/pyrbd/23d7f00ca74e8465df3760821488b4bb78df803c/docs/examples/simple_RBD.svg" width=500/></div>
+<div><img src="https://raw.githubusercontent.com/hghugdal/pyrbd/e11808e9a40c902f0e1c2c2b0b42ca0d90170cd1/docs/examples/simple_RBD.svg" width=500/></div>
 
 For more examples, visit the [documentation](https://hghugdal.github.io/pyrbd/).
