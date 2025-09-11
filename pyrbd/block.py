@@ -1,7 +1,6 @@
 """Module containing Block, Series and Group class definitions."""
 
-from typing import Optional
-from itertools import combinations
+from typing import Optional, Generator
 from copy import deepcopy
 from collections import namedtuple
 
@@ -136,6 +135,11 @@ class Block:
             ]
         )
         return node
+
+    def get_blocks(self) -> Generator["Block", None, None]:
+        """Yield child `Block` istances."""
+
+        yield self
 
     def __add__(self, block: "Block") -> "Series":
         """Add two `Block` instances to make a `Series` instance.
@@ -321,6 +325,11 @@ class Series(Block):
         )
         return series_node
 
+    def get_blocks(self) -> Generator[Block, None, None]:
+        yield from [
+            children for block in self.blocks for children in block.get_blocks()
+        ]
+
 
 class Group(Block):
     """Group of `Block` instances for vertical stacking.
@@ -449,16 +458,28 @@ class Group(Block):
 
         scaling = 0.75
 
+        series_blocks = [block for block in self.blocks if isinstance(block, Series)]
+        series_blocks.sort(
+            key=lambda block: len(list(block.get_blocks())), reverse=True
+        )
+
+        if len(series_blocks) > 0:
+            longest_series_index = self.blocks.index(series_blocks[0])
+        else:
+            longest_series_index = 0
+        blocks = deepcopy(self.blocks)
+        longest_series = blocks.pop(longest_series_index)
+
         return "\n".join(
             [
                 " ".join(
                     [
                         f"\\draw[{self.arrow_options},",
                         f"rectangle line={scaling * self.internal_arrow_length}cm]",
-                        f"({block1.id}.east) to ({block2.id}.east);\n",
+                        f"({longest_series.id}.east) to ({block.id}.east);\n",
                     ]
                 )
-                for (block1, block2) in combinations(self.blocks, 2)
+                for block in blocks
             ]
         )
 
@@ -500,3 +521,6 @@ class Group(Block):
         )
 
         return group_node
+
+    def get_blocks(self) -> Generator[Block, None, None]:
+        yield from self.blocks
