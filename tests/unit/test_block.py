@@ -105,7 +105,7 @@ def test_add() -> None:
             print(variable + block)  # type: ignore
 
 
-def test_mul() -> None:
+def test_mul_rmul() -> None:
     """Tests for __mul__ for `Block` class."""
 
     block = Block("block", "white")
@@ -113,11 +113,29 @@ def test_mul() -> None:
     assert isinstance(group := 3 * block, Group)
     assert len(group.blocks) == 3
 
-    assert isinstance(group := block * 2, Group)
-    assert len(group.blocks) == 2
+    assert isinstance(series := block * 2, Series)
+    assert len(series.blocks) == 2
+
+    assert isinstance(series * 3, Series)
+    assert isinstance(3 * series, Group)
+    assert isinstance(group * 3, Series)
+    assert isinstance(3 * group, Group)
 
     for value in [-1, 0, 2.4, False]:
         with pytest.raises(ValueError):
             print(value * block)  # type: ignore
         with pytest.raises(ValueError):
             print(block * value)  # type: ignore
+
+
+def test_get_blocks() -> None:
+    """Test get_blocks generator function."""
+
+    block = Block("self", "black")
+    assert block.get_blocks().__next__() is block
+
+    series = block * 3
+    assert list(series.get_blocks()) == series.blocks
+
+    group = 5 * block
+    assert list(group.get_blocks()) == group.blocks

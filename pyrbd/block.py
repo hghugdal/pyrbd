@@ -19,13 +19,17 @@ class Block:
         block color
     parent : Optional[Block]
         parent `Block` instance
-    shift : tuple[float, float], optional
+    shift : tuple[float, float], default=(0.0, 0.0)
         additional position shift `(x, y)` relative to `parent` `Block` instance
 
     Attributes
     ----------
     tikz_options : str
         TikZ node formatting options
+    arrow_options : str
+        TikZ arrow formatting options
+    arrow_length : float
+        default arrow length between nodes (in cm)
 
 
     Examples
@@ -167,8 +171,8 @@ class Block:
 
         return Series([self, block], parent=self.parent)
 
-    def __mul__(self, value: int) -> "Group":
-        """Multiply `Block` instance by `value` to make `Group` with repeated blocks.
+    def __rmul__(self, value: int) -> "Group":
+        """Right multiply `Block` instance by `value` to make `Group` with repeated blocks.
 
         Parameters
         ----------
@@ -193,7 +197,31 @@ class Block:
 
         return Group(blocks, parent=self.parent)
 
-    __rmul__ = __mul__
+    def __mul__(self, value: int) -> "Series":
+        """Multiply `Block` instance by `value` to make `Series` with repeated blocks.
+
+        Parameters
+        ----------
+        value : int
+            multiplicative factor
+
+        Returns
+        -------
+        Series
+            `Series` instance with `value` copies of block
+
+        Raises
+        ------
+        ValueError
+            If `value` is not a positive integer
+        """
+
+        if not isinstance(value, int) or value <= 0:
+            raise ValueError("Multiplicative factor `value` must be a positive integer")
+
+        blocks: list[Block] = [deepcopy(self) for _ in range(value)]
+
+        return Series(blocks, parent=self.parent)
 
 
 class Series(Block):
@@ -203,10 +231,10 @@ class Series(Block):
     ----------
     blocks : list[Block]
         list of `Block` instances
-    text: str, optional
+    text: str, default=""
         series label text
-    color: str, optional
-        series color
+    color: str, default=""
+        series color, defaults to white
     parent : Optional[Block]
         parent `Block` instance
 
@@ -214,6 +242,13 @@ class Series(Block):
     ----------
     tikz_options : str
         TikZ node options
+    internal_arrow_length : float
+        distance between blocks in series
+    pad : Padding
+        `namedtuple` `(north, east, south, west)` defining padding (in mmm) between
+        blocks and series frame
+    label_height : float
+        height of series label (in mm)
 
     """
 
@@ -225,10 +260,9 @@ class Series(Block):
             "outer sep=0pt",
         ]
     )
-
-    internal_arrow_length = 0.3
-    pad = Padding(1, 1, 1, 2.5)
-    label_height = 5
+    internal_arrow_length: float = 0.3
+    pad: Padding = Padding(1, 1, 1, 2.5)
+    label_height: float = 5.0
 
     def __init__(
         self,
@@ -338,10 +372,10 @@ class Group(Block):
     ----------
     blocks : list[Block]
         list of `Block` instances
-    text : str, optional
+    text : str, default=""
         group label text
-    color : str, optional
-        group color
+    color : str, default=""
+        group color, defaults to white
     parent : Optional[Block]
         parent `Block` instance
 
@@ -351,6 +385,13 @@ class Group(Block):
         scaling factor for vertical shifts of blocks
     tikz_options : str
         TikZ node options
+    internal_arrow_length : float
+        distance between blocks in series
+    pad : Padding
+        `namedtuple` `(north, east, south, west)` defining padding (in mmm) between
+        blocks and series frame
+    label_height : float
+        height of series label (in mm)
     """
 
     shift_scale: float = 1.2
@@ -359,9 +400,9 @@ class Group(Block):
             "anchor=west",
         ]
     )
-    internal_arrow_length = 0.3
-    pad = Padding(1, 1, 1, 1)
-    label_height = 5
+    internal_arrow_length: float = 0.3
+    pad: Padding = Padding(1, 1, 1, 1)
+    label_height: float = 5.0
 
     def __init__(
         self,
