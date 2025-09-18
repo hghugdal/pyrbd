@@ -1,10 +1,12 @@
 [build-system]
-requires = ["hatchling >= 1.26"]
+requires = [
+    "hatchling >= 1.26",
+    "versioningit",
+]
 build-backend = "hatchling.build"
 
 [project]
 name = "pyrbd"
-version = "0.3.2"
 description = "Package for creating simple reliability block diagrams (RBDs) using LaTeX and TikZ."
 readme = "README.md"
 authors = [
@@ -20,6 +22,7 @@ classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python :: 3"
 ]
+dynamic = ["version"]
 
 [project.urls]
 Repository = "https://github.com/hghugdal/pyrbd"
@@ -69,6 +72,10 @@ dev = [
     "pytest>=8.4.1",
     "ruff>=0.12.8",
     "ty>=0.0.1a18",
+    "versioningit>=3.3.0",
 ]
 
-[tool.pylint]
+[tool.hatch.version]
+source = "versioningit"
+
+[tool.versioningit]
