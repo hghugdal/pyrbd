@@ -16,4 +16,13 @@
 
 --8<-- "example_rbd.py:4:8"
 
-<div class="highlight"><img width="1000" src='examples/example_RBD.svg'/></div>
+<img width="1000" src='examples/example_RBD.svg'/>
+
+
+## Example with layered `Series` and `Group` instances
+
+```python linenums="1"
+--8<-- "layered_rbd.py:6:6,9:"
+```
+
+<img width="1200" src='examples/layered_RBD.svg'/>

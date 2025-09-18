@@ -9,30 +9,30 @@ chdir(path.dirname(__file__))
 
 # Define the blocks comprising the diagram
 start_block = Block("Start", "blue!30")
-block = Block("Block", "gray")
+block = Block("Block", "gray!20")
 group_1 = Group(
-    [deepcopy(b) + deepcopy(b) for b in 3 * [block]],
+    [b * 2 for b in 3 * [block]],
     text="Group with Series",
     color="orange",
     parent=start_block,
 )
 series_1 = Series(
-    [deepcopy(block), 2 * deepcopy(block)],
+    [deepcopy(block), 2 * block],
     text="Series with Group",
     color="red",
     parent=group_1,
 )
 series_2 = Series(
-    [2 * deepcopy(block), deepcopy(block), 3 * (deepcopy(block) + deepcopy(block))],
+    [2 * block, deepcopy(block), 3 * (block * 2)],
     text="Series with mixed Groups",
     color="RoyalBlue",
     parent=series_1,
 )
 group_2 = Group(
     [
-        deepcopy(block) + deepcopy(block) + deepcopy(block),
+        block * 3,
         deepcopy(block),
-        deepcopy(block) + deepcopy(block) + deepcopy(block) + deepcopy(block),
+        block * 4,
     ],
     text="Group with mixed Series",
     color="red",

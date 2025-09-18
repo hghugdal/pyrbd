@@ -22,9 +22,13 @@ class Diagram:
     colors : dict[str, str], optional
         dictionary with custom color definitions in HEX format:
         `{'color name': '6 digit hex code'}`
+
+    Attributes
+    ----------
+    colors : dict[str, str]
+        default diagram color definitions
     """
 
-    # Default color definitions
     colors: dict[str, str] = {"arrowcolor": "4c4d4c", "hazardcolor": "ff6666"}
 
     def __init__(
@@ -120,14 +124,14 @@ class Diagram:
 
         Parameters
         ----------
-        output : str | list[str], default: 'pdf'
+        output : str | list[str], default='pdf'
             output format string or list of output formats for diagram. Valid output formats are
 
             - `'pdf'` (default)
             - `'svg'`
             - `'png'`
 
-        clear_source : bool, default: True
+        clear_source : bool, default=True
             .tex source file is deleted after compilation if `True`
 
         Returns
