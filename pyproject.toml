@@ -75,6 +75,8 @@ dev = [
     "versioningit>=3.3.0",
 ]
 
+[tool.pylint]
+
 [tool.hatch.version]
 source = "versioningit"
 
