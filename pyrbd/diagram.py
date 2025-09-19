@@ -5,6 +5,7 @@ import subprocess
 
 import pymupdf
 
+from . import config
 from .block import Block
 
 
@@ -55,7 +56,7 @@ class Diagram:
         """Write diagram to .tex file."""
 
         with open(f"{self.filename}.tex", mode="w", encoding="utf-8") as file:
-            file.write(tex_preamble(self.colors))
+            file.write(_tex_preamble(self.colors))
             for block in [self.head, *self.blocks]:
                 file.write(block.get_node())
             file.write(TEX_END)
@@ -179,7 +180,7 @@ class Diagram:
         return output_files
 
 
-def tex_preamble(custom_colors: dict[str, str] | None = None) -> str:
+def _tex_preamble(custom_colors: dict[str, str] | None = None) -> str:
     """LaTeX file preamble file with definition of custom colors given in dictionary."""
 
     color_defs = []
@@ -189,12 +190,20 @@ def tex_preamble(custom_colors: dict[str, str] | None = None) -> str:
             for (color_name, hex_code) in custom_colors.items()
         ]
 
+    font = ""
+    if not config.SERIF_FONT:
+        font = "\n".join(
+            [
+                r"\usepackage{helvet}",
+                r"\renewcommand{\familydefault}{\sfdefault}",
+            ]
+        )
+
     return "\n".join(
         [
             r"\documentclass{standalone}",
-            r"\usepackage[T1]{fontenc}"
-            r"\usepackage{helvet}",
-            r"\renewcommand{\familydefault}{\sfdefault}",
+            r"\usepackage[T1]{fontenc}",
+            font,
             r"\usepackage[dvipsnames,svgnames,x11names]{xcolor}",
             r"\usepackage{tikz}",
             r"\usetikzlibrary{shapes,arrows,positioning,calc}",
@@ -202,7 +211,7 @@ def tex_preamble(custom_colors: dict[str, str] | None = None) -> str:
             r"\pgfsetlayers{background, main}",
             r"\tikzset{",
             r"connector/.style={",
-            r"-latex,",
+            f"{config.ARROW_STYLE},",
             r"font=\scriptsize},",
             r"line/.style={",
             r"font=\scriptsize},",

@@ -11,15 +11,15 @@
 ## Example with more functionality
 
 ```python linenums="1"
---8<-- "example_rbd.py:14:14,17:"
+--8<-- "example_rbd.py:15:19,22:"
 ```
 
---8<-- "example_rbd.py:4:8"
+--8<-- "example_rbd.py:4:9"
 
 <img width="1000" src='examples/example_RBD.svg'/>
 
 
-## Example with layered `Series` and `Group` instances
+## Layered `Series` and `Group` instances
 
 ```python linenums="1"
 --8<-- "layered_rbd.py:6:6,9:"

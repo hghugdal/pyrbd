@@ -43,6 +43,7 @@ nav:
     - Reference: reference/index.md
     - reference/block.md
     - reference/diagram.md
+    - reference/config.md
 
 plugins:
   - search
