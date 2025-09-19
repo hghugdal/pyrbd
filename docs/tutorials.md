@@ -11,7 +11,7 @@
 ## Example with more functionality
 
 ```python linenums="1"
---8<-- "example_rbd.py:15:18,21:"
+--8<-- "example_rbd.py:15:19,22:"
 ```
 
 --8<-- "example_rbd.py:4:9"

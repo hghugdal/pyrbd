@@ -1,7 +1,8 @@
 """Simple RBD example.
 
 Code comments:
-1.  The arrow style and font can be set by changing the value of `config.ARROW_STYLE` and `config.SERIF_FONT`
+1.  The arrow style and font can be set by changing the value of
+    `config.ARROW_STYLE` and `config.SERIF_FONT`
 2.  Here, a `Group` block is made by simply multiplying a `Block` instance by an integer
 3.  To group different blocks vertically and set a title and color, use the `Group` class
 4.  Adding `Block` instances creates a `Series` instance
