@@ -5,7 +5,7 @@ from os import chdir
 import pytest
 
 from pyrbd import Diagram, Block
-from pyrbd.diagram import tex_preamble, TEX_END
+from pyrbd.diagram import _tex_preamble, TEX_END
 
 
 @pytest.fixture(name="diagram")
@@ -48,6 +48,6 @@ def test_diagram_write(tmp_path, diagram: Diagram) -> None:
 
     tmp_file = temp_dir / f"{diagram.filename}.tex"
 
-    assert tex_preamble(diagram.colors) in tmp_file.read_text()
+    assert _tex_preamble(diagram.colors) in tmp_file.read_text()
     assert TEX_END in tmp_file.read_text()
     assert diagram.head.text in tmp_file.read_text()
