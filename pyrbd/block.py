@@ -4,6 +4,7 @@ from typing import Optional, Generator
 from copy import deepcopy
 from collections import namedtuple
 
+from .templates import JINJA_ENV
 
 Padding = namedtuple("Padding", ["n", "e", "s", "w"])
 
@@ -42,7 +43,8 @@ class Block:
     '2'
     """
 
-    tikz_options: str = ", ".join(
+    _template = "block.tex.jinja"
+    node_options: str = ", ".join(
         [
             "anchor=west",
             "align=center",
@@ -71,46 +73,6 @@ class Block:
         self.shift = shift
         self.id: str = str(int(self.parent.id) + 1) if self.parent is not None else "1"
 
-    @property
-    def position(self) -> str:
-        """Block position TikZ string."""
-
-        if self.parent is None:
-            return ""
-
-        return " ".join(
-            [
-                f"[right={self.arrow_length + self.shift[0]}cm",
-                f"of {self.parent.id},",
-                f"yshift={self.shift[1]}cm]",
-            ]
-        )
-
-    def arrow(self, connector_position: float) -> str:
-        """Get TikZ arrow string.
-
-
-        Parameters
-        ----------
-        connector_position : float
-            distance in cm to right angle bend in connector
-
-        Returns
-        -------
-        str
-            TikZ string for arrow from `parent` to `self` or empty string if `parent` is `None`
-        """
-
-        if self.parent is None:
-            return ""
-
-        return "".join(
-            [
-                f"\\draw[{self.arrow_options}, rectangle connector={connector_position}cm]",
-                f"({self.parent.id}.east) to ({self.id}.west);\n\n",
-            ]
-        )
-
     def get_node(self, connector_position: Optional[float] = None) -> str:
         """Get TikZ node string.
 
@@ -128,17 +90,15 @@ class Block:
         if connector_position is None:
             connector_position = self.arrow_length / 2
 
-        node = "".join(
-            [
-                "% Block\n",
-                f"\\node[{self.tikz_options.format(fill_color=self.color)}] ",
-                f"({self.id}) ",
-                self.position,
-                f"{{{self.text}}};\n",
-                self.arrow(connector_position),
-            ]
-        )
-        return node
+        environment = JINJA_ENV
+        template = environment.get_template(self._template)
+        context = {
+            "block": self,
+            "node_options": self.node_options.format(fill_color=self.color),
+            "connector_position": connector_position,
+        }
+
+        return template.render(context)
 
     def get_blocks(self) -> Generator["Block", None, None]:
         """Yield child `Block` istances."""
@@ -166,7 +126,7 @@ class Block:
 
         if not isinstance(block, Block):
             raise TypeError(
-                f"cannot add object of type {type(block)=} to Block instance."
+                f"Cannot add object of type {type(block)=} to Block instance."
             )
 
         return Series([self, block], parent=self.parent)
@@ -252,7 +212,8 @@ class Series(Block):
 
     """
 
-    tikz_options: str = ", ".join(
+    _template = "series.tex.jinja"
+    node_options: str = ", ".join(
         [
             "anchor=west",
             "align=center",
@@ -283,46 +244,6 @@ class Series(Block):
             block.id = f"{self.id}+{i}"
             block.arrow_length = self.internal_arrow_length
 
-    @property
-    def background(self) -> str:
-        """Background rectangle TikZ string."""
-
-        if self.color in ("white", ""):
-            return ""
-
-        pad = self.pad
-
-        return "".join(
-            [
-                "\\begin{pgfonlayer}{background}\n",
-                f"\\coordinate (sw) at ($({self.id}.south west)+(-{pad.w}mm, -{pad.s}mm)$);\n",
-                f"\\coordinate (ne) at ($({self.id}.north east)+({pad.e}mm, {pad.n}mm)$);\n",
-                f"\\draw[{self.color}, thick] (sw) rectangle (ne);\n",
-                "\\end{pgfonlayer}\n",
-            ]
-        )
-
-    @property
-    def label(self) -> str:
-        """Series label string."""
-
-        if len(self.text) == 0:
-            return ""
-
-        pad = self.pad
-
-        return "".join(
-            [
-                f"\\coordinate (nw) at ($({self.id}.north west)+(-{pad.w}mm, {pad.n}mm)$);\n",
-                f"\\coordinate (ne) at ($({self.id}.north east)+({pad.e}mm, {pad.n}mm)$);\n",
-                "\\coordinate (n) at "
-                f"($({self.id}.north)+(0mm, {self.label_height / 2 + pad.n}mm)$);\n",
-                f"\\draw[{self.color}, fill={self.color}!50, thick] (nw) ",
-                f"rectangle ($(ne)+(0, {self.label_height}mm)$);\n",
-                f"\\node[anchor=center, inner sep=0pt, outer sep=0pt] at (n) {{{self.text}}};\n",
-            ]
-        )
-
     def get_node(self, connector_position: Optional[float] = None) -> str:
         """Get TikZ node string.
 
@@ -337,27 +258,22 @@ class Series(Block):
             TikZ string for rendering series
 
         """
-
         if connector_position is None:
             connector_position = self.arrow_length / 2
 
-        block_nodes = "\n".join(
-            block.get_node(connector_position) for block in self.blocks
-        )
-        series_node = "".join(
-            [
-                f"%%% Series\n\\node[{self.tikz_options}]",
-                f"({self.id})",
-                self.position,
-                "{\\begin{tikzpicture}\n",
-                block_nodes,
-                "\\end{tikzpicture}};\n\n",
-                self.arrow(connector_position),
-                self.background,
-                self.label,
-            ]
-        )
-        return series_node
+        block_nodes = [block.get_node(connector_position) for block in self.blocks]
+
+        environment = JINJA_ENV
+        template = environment.get_template(self._template)
+        context = {
+            "series": self,
+            "node_options": self.node_options,
+            "connector_position": connector_position,
+            "pad": self.pad,
+            "block_nodes": block_nodes,
+        }
+
+        return template.render(context)
 
     def get_blocks(self) -> Generator[Block, None, None]:
         yield from [
@@ -394,6 +310,7 @@ class Group(Block):
         height of series label (in mm)
     """
 
+    _template = "group.tex.jinja"
     shift_scale: float = 1.2
     tikz_options: str = ", ".join(
         [
@@ -419,6 +336,21 @@ class Group(Block):
             block.parent = self
             block.id = f"{self.id}-{i}"
             block.arrow_length = self.internal_arrow_length
+
+    @property
+    def position(self) -> str:
+        """Block position TikZ string."""
+
+        if self.parent is None:
+            return ""
+
+        return " ".join(
+            [
+                f"[right={self.arrow_length + self.shift[0]}cm",
+                f"of {self.parent.id},",
+                f"yshift={self.shift[1]}cm]",
+            ]
+        )
 
     @property
     def shifts(self) -> list[float]:
@@ -474,13 +406,8 @@ class Group(Block):
             ]
         )
 
-    def arrow(self, connector_position: float) -> str:
+    def arrow(self) -> str:
         """Get TikZ arrow string.
-
-        Parameters
-        ----------
-        connector_position : float
-            distance in cm to right angle bend in connector (not used in `Group` class)
 
         Returns
         -------
@@ -555,7 +482,7 @@ class Group(Block):
                 block_nodes,
                 self.arrows,
                 "\\end{tikzpicture}};\n\n",
-                self.arrow(connector_position),
+                self.arrow(),
                 self.background,
                 self.label,
             ]

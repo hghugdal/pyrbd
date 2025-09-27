@@ -12,15 +12,17 @@ def test_block() -> None:
 
     block = Block("Block", "blue")
     assert block.id == "1"
-    assert block.position == ""
-    assert block.arrow(0.5) == ""
+    tikz_node = block.get_node()
+    assert "right=" not in tikz_node
+    assert "\\draw" not in tikz_node
 
     child = Block("Child", "green", shift=(0.5, 2), parent=block)
     assert child.id == "2"
-    assert child.position == "[right=1.0cm of 1, yshift=2cm]"
+    tikz_node = child.get_node(connector_position=0.5)
+    assert "[right=1.0cm of 1, yshift=2cm]" in tikz_node
     assert (
-        "\\draw[arrowcolor, thick, rectangle connector=0.5cm](1.east) to (2.west);"
-        in child.arrow(0.5)
+        "\\draw[arrowcolor, thick, rectangle connector=0.5cm] (1.east) to (2.west);"
+        in tikz_node
     )
 
     node = child.get_node()
@@ -43,14 +45,17 @@ def test_series() -> None:
     assert block_1.parent is None
     assert block_2.parent is block_1
 
-    assert series.background == ""
-    assert series.label == ""
+    tikz_node = series.get_node()
+
+    assert "background" not in tikz_node
+    assert "% label text" not in tikz_node
 
     series_node = Series([block_1, block_2], "Series label", "gray", parent=series)
 
     assert series_node.id == "2"
-    assert "gray" in series_node.background
-    assert "gray" in series_node.label and "Series label" in series_node.label
+    tikz_node = series_node.get_node()
+    assert "gray" in tikz_node
+    assert "gray!50" in tikz_node and "Series label" in tikz_node
 
     for color in ["blue", "green", "gray"]:
         assert color in series_node.get_node()
@@ -65,7 +70,7 @@ def test_group() -> None:
 
     assert group.id == "1"
     assert group.parent is None
-    assert group.arrow(0) == ""
+    assert group.arrow() == ""
     assert group.background == ""
     assert group.label == ""
 

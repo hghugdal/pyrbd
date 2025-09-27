@@ -1,0 +1,29 @@
+% Series
+\node[\VAR{ node_options }] (\VAR{ series.id })
+\BLOCK{ if series.parent is not none }
+[right=\VAR{ series.arrow_length + series.shift[0] }cm of \VAR{ series.parent.id }, yshift=\VAR{ series.shift[1] }cm]
+\BLOCK{ endif }
+{\begin{tikzpicture}
+    \BLOCK{ for block in block_nodes }
+    \VAR{ block }
+    \BLOCK{ endfor }
+\end{tikzpicture}};
+\BLOCK{ if series.parent is not none }
+\draw[\VAR{ series.arrow_options }, rectangle connector=\VAR{ connector_position }cm] (\VAR{ series.parent.id }.east) to (\VAR{ series.id }.west);
+\BLOCK{ endif }
+
+\BLOCK{ if series.color not in ("white", "") }
+\begin{pgfonlayer}{background}
+\coordinate (sw) at ($(\VAR{ series.id }.south west)+(-\VAR{ pad.w }mm, -\VAR{ pad.s }mm)$);
+\coordinate (ne) at ($(\VAR{ series.id }.north east)+(\VAR{ pad.e }mm, \VAR{ pad.n }mm)$);
+\draw[\VAR{ series.color }, thick] (sw) rectangle (ne);
+\end{pgfonlayer}
+\BLOCK{ endif }
+
+\BLOCK{ if series.text }
+\coordinate (nw) at ($(\VAR{ series.id }.north west)+(-\VAR{ pad.w }mm, \VAR{ pad.n }mm)$);
+\coordinate (ne) at ($(\VAR{ series.id }.north east)+(\VAR{ pad.e }mm, \VAR{ pad.n }mm)$);
+\coordinate (n) at ($(\VAR{ series.id }.north)+(0mm, \VAR{ series.label_height/2 + pad.n }mm)$);
+\draw[\VAR{ series.color }, fill=\VAR{ series.color }!50, thick] (nw) rectangle ($(ne)+(0, \VAR{ series.label_height }mm)$);
+\node[anchor=center, inner sep=0pt, outer sep=0pt] at (n) {\VAR{ series.text }}; % label text
+\BLOCK{ endif }

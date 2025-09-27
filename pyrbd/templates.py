@@ -14,6 +14,6 @@ JINJA_ENV: Environment = Environment(
     comment_end_string=r"}",
     line_statement_prefix=r"%%",
     line_comment_prefix=r"%#",
-    trim_blocks=False,
+    trim_blocks=True,
     autoescape=False,
 )
