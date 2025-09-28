@@ -93,6 +93,7 @@ class Block:
         environment = JINJA_ENV
         template = environment.get_template(self._template)
         context = {
+            "type": "Block",
             "block": self,
             "node_options": self.node_options.format(fill_color=self.color),
             "connector_position": connector_position,
@@ -266,7 +267,8 @@ class Series(Block):
         environment = JINJA_ENV
         template = environment.get_template(self._template)
         context = {
-            "series": self,
+            "type": "Series",
+            "block": self,
             "node_options": self.node_options,
             "connector_position": connector_position,
             "pad": self.pad,
@@ -312,12 +314,16 @@ class Group(Block):
 
     _template = "group.tex.jinja"
     shift_scale: float = 1.2
-    tikz_options: str = ", ".join(
+    node_options: str = ", ".join(
         [
             "anchor=west",
+            "align=center",
+            "inner sep=0pt",
+            "outer sep=0pt",
         ]
     )
     internal_arrow_length: float = 0.3
+    end_arrow_scaling = 0.75
     pad: Padding = Padding(1, 1, 1, 1)
     label_height: float = 5.0
 
@@ -338,21 +344,6 @@ class Group(Block):
             block.arrow_length = self.internal_arrow_length
 
     @property
-    def position(self) -> str:
-        """Block position TikZ string."""
-
-        if self.parent is None:
-            return ""
-
-        return " ".join(
-            [
-                f"[right={self.arrow_length + self.shift[0]}cm",
-                f"of {self.parent.id},",
-                f"yshift={self.shift[1]}cm]",
-            ]
-        )
-
-    @property
     def shifts(self) -> list[float]:
         """List of vertical position shifts for each `Block` instance in group.
 
@@ -367,64 +358,10 @@ class Group(Block):
         return list(-self.shift_scale * n for n in range(n_blocks))
 
     @property
-    def background(self) -> str:
-        """Background rectangle TikZ string."""
-
-        if self.color in ("white", ""):
-            return ""
-
-        pad = self.pad
-
-        return "".join(
-            [
-                "\\begin{pgfonlayer}{background}\n",
-                f"\\coordinate (sw) at ($({self.id}.south west)+(-{pad.w}mm, -{pad.s}mm)$);\n",
-                f"\\coordinate (ne) at ($({self.id}.north east)+({pad.e}mm, {pad.n}mm)$);\n",
-                f"\\draw[{self.color}, thick] (sw) rectangle (ne);\n",
-                "\\end{pgfonlayer}\n",
-            ]
-        )
-
-    @property
-    def label(self) -> str:
-        """Series label string."""
-
-        if len(self.text) == 0:
-            return ""
-
-        pad = self.pad
-
-        return "".join(
-            [
-                f"\\coordinate (nw) at ($({self.id}.north west)+(-{pad.w}mm, {pad.n}mm)$);\n",
-                f"\\coordinate (ne) at ($({self.id}.north east)+({pad.e}mm, {pad.n}mm)$);\n",
-                "\\coordinate (n) at ",
-                f"($({self.id}.north)+(0mm, {self.label_height / 2 + pad.n}mm)$);\n",
-                f"\\draw[{self.color}, fill={self.color}!50, thick] (nw) ",
-                f"rectangle ($(ne)+(0, {self.label_height}mm)$);\n",
-                f"\\node[anchor=center, inner sep=0pt, outer sep=0pt] at (n) {{{self.text}}};\n",
-            ]
-        )
-
-    def arrow(self) -> str:
-        """Get TikZ arrow string.
-
-        Returns
-        -------
-        str
-            TikZ string for arrow from `parent` to `self` or empty string if `parent` is `None`
-        """
-
-        if self.parent is None:
-            return ""
-
-        return f"\\draw[{self.arrow_options}] ({self.parent.id}.east) to ({self.id}.west);\n"
-
-    @property
-    def arrows(self) -> str:
+    def sorted_blocks(self) -> list[Block]:
         """Get TikZ string for arrow connecting stacked blocks."""
 
-        scaling = 0.75
+        # scaling = 0.75
 
         series_blocks = [block for block in self.blocks if isinstance(block, Series)]
         series_blocks.sort(
@@ -438,18 +375,7 @@ class Group(Block):
         blocks = deepcopy(self.blocks)
         longest_series = blocks.pop(longest_series_index)
 
-        return "\n".join(
-            [
-                " ".join(
-                    [
-                        f"\\draw[{self.arrow_options},",
-                        f"rectangle line={scaling * self.internal_arrow_length}cm]",
-                        f"({longest_series.id}.east) to ({block.id}.east);\n",
-                    ]
-                )
-                for block in blocks
-            ]
-        )
+        return [longest_series, *blocks]
 
     def get_node(self, connector_position: Optional[float] = None) -> str:
         """Get TikZ node string.
@@ -468,27 +394,20 @@ class Group(Block):
 
         connector_position = 0.0
 
-        block_nodes = "\n".join(
-            block.get_node(connector_position) for block in self.blocks
-        )
+        block_nodes = [block.get_node(connector_position) for block in self.blocks]
 
-        group_node = "".join(
-            [
-                "%%% Group\n"
-                f"\\node[anchor=west, outer sep=0pt, inner sep=0pt, align=center] ({self.id}) ",
-                self.position,
-                "{\\begin{tikzpicture}\n",
-                f"\\coordinate ({self.id}) at (0, 0);\n",
-                block_nodes,
-                self.arrows,
-                "\\end{tikzpicture}};\n\n",
-                self.arrow(),
-                self.background,
-                self.label,
-            ]
-        )
+        environment = JINJA_ENV
+        template = environment.get_template(self._template)
+        context = {
+            "type": "Group",
+            "block": self,
+            "node_options": self.node_options,
+            "connector_position": connector_position,
+            "pad": self.pad,
+            "block_nodes": block_nodes,
+        }
 
-        return group_node
+        return template.render(context)
 
     def get_blocks(self) -> Generator[Block, None, None]:
         yield from self.blocks

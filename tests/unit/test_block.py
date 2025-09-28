@@ -70,9 +70,11 @@ def test_group() -> None:
 
     assert group.id == "1"
     assert group.parent is None
-    assert group.arrow() == ""
-    assert group.background == ""
-    assert group.label == ""
+
+    tikz_node = group.get_node()
+
+    assert "background" not in tikz_node
+    assert "% label text" not in tikz_node
 
     assert len(group.shift) == 2
     assert group.shifts == [0, -group.shift_scale]
@@ -91,8 +93,9 @@ def test_group() -> None:
     group_w_background = Group(
         [block_1, block_2], parent=group, text="Group label", color="black"
     )
-    assert "black" in group_w_background.background
-    assert "Group label" in group_w_background.label
+    tikz_node = group_w_background.get_node()
+    assert "black" in tikz_node
+    assert "Group label" in tikz_node
 
 
 def test_add() -> None:

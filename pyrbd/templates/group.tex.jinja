@@ -5,15 +5,19 @@
 [right=\VAR{ block.arrow_length + block.shift[0] }cm of \VAR{ block.parent.id }, yshift=\VAR{ block.shift[1] }cm]
 \BLOCK{ endif }
 {\begin{tikzpicture}
-\BLOCK{ for member in block_nodes }
-\VAR{ member }
-\BLOCK{ endfor }
+\coordinate(\VAR{ block.id }) at (0, 0);
+\BLOCK{ for member in block_nodes }\VAR{ member }\BLOCK{ endfor }
+%#
+% Connecting arrows
+\BLOCK{ for member in block.sorted_blocks }\BLOCK{ if not loop.first }
+\draw[\VAR{ block.arrow_options }, rectangle line=\VAR{ block.end_arrow_scaling * block.internal_arrow_length }cm] (\VAR{ block.sorted_blocks[0].id }.east) to (\VAR{ member.id }.east);
+\BLOCK{ endif }\BLOCK{ endfor }
 \end{tikzpicture}};
-
+%#
 \BLOCK{ if block.parent is not none }
-\draw[\VAR{ block.arrow_options }, rectangle connector=\VAR{ connector_position }cm] (\VAR{ block.parent.id }.east) to (\VAR{ block.id }.west);
+\draw[\VAR{ block.arrow_options }] (\VAR{ block.parent.id }.east) to (\VAR{ block.id }.west);
 \BLOCK{ endif }
-
+%#
 \BLOCK{ if block.color not in ("white", "") }
 \begin{pgfonlayer}{background}
 \coordinate (sw) at ($(\VAR{ block.id }.south west)+(-\VAR{ pad.w }mm, -\VAR{ pad.s }mm)$);
@@ -21,7 +25,7 @@
 \draw[\VAR{ block.color }, thick] (sw) rectangle (ne);
 \end{pgfonlayer}
 \BLOCK{ endif }
-
+%#
 \BLOCK{ if block.text }
 \coordinate (nw) at ($(\VAR{ block.id }.north west)+(-\VAR{ pad.w }mm, \VAR{ pad.n }mm)$);
 \coordinate (ne) at ($(\VAR{ block.id }.north east)+(\VAR{ pad.e }mm, \VAR{ pad.n }mm)$);

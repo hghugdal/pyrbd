@@ -16,4 +16,5 @@ JINJA_ENV: Environment = Environment(
     line_comment_prefix=r"%#",
     trim_blocks=True,
     autoescape=False,
+    keep_trailing_newline=True,
 )

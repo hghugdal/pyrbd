@@ -781,7 +781,7 @@ wheels = [
 
 [[package]]
 name = "pyrbd"
-version = "0.4.1b2"
+version = "0.4.1b3"
 source = { editable = "." }
 dependencies = [
     { name = "jinja2" },
