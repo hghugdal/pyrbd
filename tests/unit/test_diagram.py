@@ -1,16 +1,28 @@
 """Tests for `Diagram` class."""
 
 from os import chdir
+from typing import Generator
 
 import pytest
+from pytest import FixtureRequest
 
-from pyrbd import Diagram, Block
-from pyrbd.diagram import _tex_preamble, TEX_END
+from pyrbd import Diagram, Block, config
+
+
+@pytest.fixture(name="arrow_style", scope="module", params=["", "-latex"])
+def arrow_style_fixture(request: FixtureRequest) -> Generator[str, None, None]:
+    """Arrow style pytest fixture."""
+
+    styles: str = request.param
+
+    yield styles
 
 
 @pytest.fixture(name="diagram")
-def diagram_fixture() -> Diagram:
+def diagram_fixture(arrow_style: str) -> Diagram:
     """Diagram pytest fixture."""
+
+    config.ARROW_STYLE = arrow_style
 
     block = Block("block", "white")
     return Diagram("test_diagram", [block], "Fire", colors={"myblue": "8888ff"})
@@ -48,6 +60,7 @@ def test_diagram_write(tmp_path, diagram: Diagram) -> None:
 
     tmp_file = temp_dir / f"{diagram.filename}.tex"
 
-    assert _tex_preamble(diagram.colors) in tmp_file.read_text()
-    assert TEX_END in tmp_file.read_text()
+    for hex_code in diagram.colors.values():
+        assert hex_code in tmp_file.read_text()
+    assert config.ARROW_STYLE in tmp_file.read_text()
     assert diagram.head.text in tmp_file.read_text()

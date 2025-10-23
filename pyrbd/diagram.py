@@ -6,6 +6,7 @@ import subprocess
 import pymupdf
 
 from . import config
+from .templates import JINJA_ENV
 from .block import Block
 
 
@@ -30,6 +31,7 @@ class Diagram:
         default diagram color definitions
     """
 
+    _template: str = "diagram.tex.jinja"
     colors: dict[str, str] = {"arrowcolor": "4c4d4c", "hazardcolor": "ff6666"}
 
     def __init__(
@@ -55,11 +57,21 @@ class Diagram:
     def write(self) -> None:
         """Write diagram to .tex file."""
 
+        environment = JINJA_ENV
+        template = environment.get_template(self._template)
+
+        context = {
+            "serif_font": config.SERIF_FONT,
+            "arrow_style": config.ARROW_STYLE,
+            "color_defs": [
+                {"name": name, "hex_code": code} for name, code in self.colors.items()
+            ],
+            "blocks": list(block.get_node() for block in [self.head, *self.blocks]),
+        }
+        content = template.render(context)
+
         with open(f"{self.filename}.tex", mode="w", encoding="utf-8") as file:
-            file.write(_tex_preamble(self.colors))
-            for block in [self.head, *self.blocks]:
-                file.write(block.get_node())
-            file.write(TEX_END)
+            file.write(content)
 
     def _to_svg(self) -> str:
         """Convert diagram file from pdf to svg.
@@ -178,68 +190,3 @@ class Diagram:
             output_files.append(f"{self.filename}.pdf")
 
         return output_files
-
-
-def _tex_preamble(custom_colors: dict[str, str] | None = None) -> str:
-    """LaTeX file preamble file with definition of custom colors given in dictionary."""
-
-    color_defs = []
-    if custom_colors is not None:
-        color_defs = [
-            f"\\definecolor{{{color_name}}}{{HTML}}{{{hex_code}}}"
-            for (color_name, hex_code) in custom_colors.items()
-        ]
-
-    font = ""
-    if not config.SERIF_FONT:
-        font = "\n".join(
-            [
-                r"\usepackage{helvet}",
-                r"\renewcommand{\familydefault}{\sfdefault}",
-            ]
-        )
-
-    return "\n".join(
-        [
-            r"\documentclass{standalone}",
-            r"\usepackage[T1]{fontenc}",
-            font,
-            r"\usepackage[dvipsnames,svgnames,x11names]{xcolor}",
-            r"\usepackage{tikz}",
-            r"\usetikzlibrary{shapes,arrows,positioning,calc}",
-            r"\pgfdeclarelayer{background}",
-            r"\pgfsetlayers{background, main}",
-            r"\tikzset{",
-            r"connector/.style={",
-            f"{config.ARROW_STYLE},",
-            r"font=\scriptsize},",
-            r"line/.style={",
-            r"font=\scriptsize},",
-            r"rectangle connector/.style={",
-            r"connector,"
-            r"to path={(\tikztostart) -- ++(#1,0pt) \tikztonodes |- (\tikztotarget) },",
-            r"pos=0.5},"
-            r"rectangle connector/.default=0.5cm,",
-            r"rectangle line/.style={",
-            r"line,"
-            r"to path={(\tikztostart) -- ++(#1,0pt) \tikztonodes |- (\tikztotarget) },",
-            r"pos=0.5},"
-            r"rectangle line/.default=0.5cm,",
-            r"straight connector/.style={",
-            r"connector,",
-            r"to path=--(\tikztotarget) \tikztonodes}",
-            r"}",
-            *color_defs,
-            r"\begin{document}",
-            r"\begin{tikzpicture}",
-            "",
-        ]
-    )
-
-
-TEX_END = "\n".join(
-    [
-        r"\end{tikzpicture}",
-        r"\end{document}",
-    ]
-)
