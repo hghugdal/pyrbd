@@ -11,19 +11,17 @@ def test_block() -> None:
     """Test `Block` __init__ and properties."""
 
     block = Block("Block", "blue")
-    assert block.id == "1"
     tikz_node = block.get_node()
     assert "right=" not in tikz_node
     assert "\\draw" not in tikz_node
 
     child = Block("Child", "green", shift=(0.5, 2), parent=block)
-    assert child.id == "2"
+    assert child.id == str(int(block.id) + 1)
     tikz_node = child.get_node(connector_position=0.5)
-    assert "[right=1.0cm of 1, yshift=2cm]" in tikz_node
+    assert f"[right=1.0cm of {block.id}, yshift=2cm]" in tikz_node
     assert (
-        "\\draw[arrowcolor, thick, rectangle connector=0.5cm] (1.east) to (2.west);"
-        in tikz_node
-    )
+        f"[arrowcolor, thick, rectangle connector=0.5cm] ({block.id}.east) to ({child.id}.west);"
+    ) in tikz_node
 
     node = child.get_node()
     assert "green" in node
@@ -37,11 +35,10 @@ def test_series() -> None:
     block_2 = Block("Block 2", "green")
     series = Series([block_1, block_2])
 
-    assert series.id == "1"
     assert series.parent is None
 
-    assert block_1.id == "1+0"
-    assert block_2.id == "1+1"
+    assert block_1.id == f"{series.id}+0"
+    assert block_2.id == f"{series.id}+1"
     assert block_1.parent is None
     assert block_2.parent is block_1
 
@@ -52,7 +49,7 @@ def test_series() -> None:
 
     series_node = Series([block_1, block_2], "Series label", "gray", parent=series)
 
-    assert series_node.id == "2"
+    assert series_node.id == str(int(series.id) + 1)
     tikz_node = series_node.get_node()
     assert "gray" in tikz_node
     assert "gray!50" in tikz_node and "Series label" in tikz_node
@@ -68,7 +65,6 @@ def test_group() -> None:
     block_2 = Block("Block 2", "green")
     group = Group([block_1, block_2])
 
-    assert group.id == "1"
     assert group.parent is None
 
     tikz_node = group.get_node()
@@ -79,13 +75,13 @@ def test_group() -> None:
     assert len(group.shift) == 2
     assert group.shifts == [0, -group.shift_scale]
 
-    assert block_1.id == "1-0"
-    assert block_2.id == "1-1"
+    assert block_1.id == f"{group.id}-0"
+    assert block_2.id == f"{group.id}-1"
     assert block_1.parent is group
     assert block_2.parent is group
 
     group_node = Group([block_1, block_2], parent=group)
-    assert group_node.id == "2"
+    assert group_node.id == str(int(group.id) + 1)
 
     for color in ["blue", "green"]:
         assert color in group_node.get_node()

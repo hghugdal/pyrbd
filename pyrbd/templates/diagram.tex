@@ -4,7 +4,7 @@
 \renewcommand{\familydefault}{\sfdefault}\BLOCK{ endif }
 \usepackage[dvipsnames,svgnames,x11names]{xcolor}
 \usepackage{tikz}
-\usetikzlibrary{shapes,arrows,positioning,calc}
+\usetikzlibrary{shapes,arrows,positioning,calc,tikzmark}
 \pgfdeclarelayer{background}
 \pgfsetlayers{background, main}
 \tikzset{
@@ -31,7 +31,7 @@ to path=--(\tikztotarget) \tikztonodes}
 \BLOCK{ endfor }
 
 \begin{document}
-\begin{tikzpicture}
+\begin{tikzpicture}[remember picture]
 
 \BLOCK{ for block in blocks }\VAR{ block }\BLOCK{ endfor }
 

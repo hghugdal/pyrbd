@@ -38,12 +38,30 @@ group_2 = Group(
     color="red",
     parent=series_2,
 )
-end_block = Block("End", "green!50", parent=group_2)
+series_in_series = Series(
+    [
+        Series([deepcopy(block), deepcopy(block)], color="yellow", text="Child 1"),
+        Series([deepcopy(block), deepcopy(block)], color="orange", text="Child 2"),
+        deepcopy(block),
+    ],
+    parent=group_2,
+    text="Parent series",
+    color="red",
+)
+end_block = Block("End", "green!50", parent=series_in_series)
 
 # Define and compile the diagram
 diagram = Diagram(
     "layered_RBD",
-    blocks=[start_block, group_1, series_1, series_2, group_2, end_block],
+    blocks=[
+        start_block,
+        group_1,
+        series_1,
+        series_2,
+        group_2,
+        series_in_series,
+        end_block,
+    ],
 )
 diagram.write()
 diagram.compile(["pdf", "svg"])

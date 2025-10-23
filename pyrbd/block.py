@@ -3,6 +3,7 @@
 from typing import Optional, Generator
 from copy import deepcopy
 from collections import namedtuple
+import itertools
 
 from .templates import JINJA_ENV
 
@@ -31,16 +32,6 @@ class Block:
         TikZ arrow formatting options
     arrow_length : float
         default arrow length between nodes (in cm)
-
-
-    Examples
-    --------
-    >>> block_1 = Block("Start", "green")
-    >>> block_1.id
-    '1'
-    >>> block_2 = Block("End", "red", parent=block_1)
-    >>> block_2.id
-    '2'
     """
 
     _template = "block.tex.jinja"
@@ -60,6 +51,8 @@ class Block:
     arrow_options: str = "arrowcolor, thick"
     arrow_length: float = 0.5
 
+    block_count = itertools.count()
+
     def __init__(
         self,
         text: str,
@@ -71,7 +64,8 @@ class Block:
         self.color = color
         self.parent = parent
         self.shift = shift
-        self.id: str = str(int(self.parent.id) + 1) if self.parent is not None else "1"
+        self.last = self
+        self.id = str(next(self.block_count))
 
     def get_node(self, connector_position: Optional[float] = None) -> str:
         """Get TikZ node string.
@@ -230,20 +224,25 @@ class Series(Block):
         self,
         blocks: list[Block],
         text: str = "",
-        color: str = "",
+        color: str = "white",
         parent: Optional[Block] = None,
     ) -> None:
         Block.__init__(self, text, color, parent)
 
         self.blocks = blocks
+        self.last = self.blocks[-1]
+
         self.blocks[0].id = f"{self.id}+0"
-        self.blocks[0].shift = (self.internal_arrow_length, 0)
         for i, (block, new_parent) in enumerate(
             zip(self.blocks[1::], self.blocks[0:-1]), start=1
         ):
             block.parent = new_parent
             block.id = f"{self.id}+{i}"
-            block.arrow_length = self.internal_arrow_length
+            if not isinstance(block, Series):
+                block.arrow_length = self.internal_arrow_length
+
+        if True in [isinstance(block, Series) for block in self.blocks]:
+            self.shift = (0, 0.25)
 
     def get_node(self, connector_position: Optional[float] = None) -> str:
         """Get TikZ node string.
@@ -273,6 +272,7 @@ class Series(Block):
             "connector_position": connector_position,
             "pad": self.pad,
             "block_nodes": block_nodes,
+            "first": self.blocks[0],
         }
 
         return template.render(context)

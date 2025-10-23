@@ -2,9 +2,9 @@
 % \VAR{ type }
 \node[\VAR{ node_options }] (\VAR{ block.id })
 \BLOCK{ if block.parent is not none }
-[right=\VAR{ block.arrow_length + block.shift[0] }cm of \VAR{ block.parent.id }, yshift=\VAR{ block.shift[1] }cm]
+[right=\VAR{ block.arrow_length + block.shift[0] }cm of \VAR{ block.parent.last.id }, yshift=\VAR{ block.shift[1] }cm]
 \BLOCK{ endif }
-{\begin{tikzpicture}
+{\begin{tikzpicture}[remember picture]
 \coordinate(\VAR{ block.id }) at (0, 0);
 \BLOCK{ for member in block_nodes }\VAR{ member }\BLOCK{ endfor }
 %#
@@ -15,7 +15,7 @@
 \end{tikzpicture}};
 %#
 \BLOCK{ if block.parent is not none }
-\draw[\VAR{ block.arrow_options }] (\VAR{ block.parent.id }.east) to (\VAR{ block.id }.west);
+\draw[\VAR{ block.arrow_options }] (\VAR{ block.parent.last.id }.east) to (\VAR{ block.id }.west);
 \BLOCK{ endif }
 %#
 \BLOCK{ if block.color not in ("white", "") }
