@@ -51,7 +51,7 @@ class Block:
     arrow_options: str = "arrowcolor, thick"
     arrow_length: float = 0.5
 
-    block_count = itertools.count()
+    block_count = itertools.count(start=1)
 
     def __init__(
         self,

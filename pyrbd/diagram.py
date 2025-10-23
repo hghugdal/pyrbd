@@ -31,7 +31,7 @@ class Diagram:
         default diagram color definitions
     """
 
-    _template: str = "diagram.tex"
+    _template: str = "diagram.tex.jinja"
     colors: dict[str, str] = {"arrowcolor": "4c4d4c", "hazardcolor": "ff6666"}
 
     def __init__(
