@@ -19,18 +19,18 @@ class Block:
         block text string
     color : str
         block color
-    parent : Optional[Block]
+    parent : Optional["Block"], default=None
         parent `Block` instance
     shift : tuple[float, float], default=(0.0, 0.0)
         additional position shift `(x, y)` relative to `parent` `Block` instance
 
     Attributes
     ----------
-    tikz_options : str
+    node_options : str
         TikZ node formatting options
-    arrow_options : str
+    arrow_options : str, default="arrowcolor, thick"
         TikZ arrow formatting options
-    arrow_length : float
+    arrow_length : float, default=0.5
         default arrow length between nodes (in cm)
     """
 
@@ -51,7 +51,7 @@ class Block:
     arrow_options: str = "arrowcolor, thick"
     arrow_length: float = 0.5
 
-    block_count = itertools.count(start=1)
+    _block_count = itertools.count(start=1)
 
     def __init__(
         self,
@@ -65,14 +65,14 @@ class Block:
         self.parent = parent
         self.shift = shift
         self.last = self
-        self.id = str(next(self.block_count))
+        self.id = str(next(self._block_count))
 
     def get_node(self, connector_position: Optional[float] = None) -> str:
         """Get TikZ node string.
 
         Parameters
         ----------
-        connector_position : Optional[float]
+        connector_position : Optional[float], default=None
             distance in cm to right angle bend in connector. Defaults to `0.5*arrow_length`.
 
         Returns
@@ -206,21 +206,21 @@ class Series(Block):
         list of `Block` instances
     text: str, default=""
         series label text
-    color: str, default=""
+    color: str, default="white"
         series color, defaults to white
-    parent : Optional[Block]
+    parent : Optional[Block], default=None
         parent `Block` instance
 
     Attributes
     ----------
-    tikz_options : str
+    node_options : str
         TikZ node options
-    internal_arrow_length : float
+    internal_arrow_length : float, default=0.3
         distance between blocks in series
-    pad : Padding
+    pad : Padding, default=Padding(1, 1, 1, 2.5)
         `namedtuple` `(north, east, south, west)` defining padding (in mmm) between
         blocks and series frame
-    label_height : float
+    label_height : float, default=5.0
         height of series label (in mm)
 
     """
@@ -267,7 +267,7 @@ class Series(Block):
 
         Parameters
         ----------
-        connector_position : Optional[float]
+        connector_position : Optional[float], default=None
             distance in cm to right angle bend in connector. Defaults to `0.5 * arrow_length`
 
         Returns
@@ -312,21 +312,23 @@ class Group(Block):
         group label text
     color : str, default=""
         group color, defaults to white
-    parent : Optional[Block]
+    parent : Optional[Block], default=None
         parent `Block` instance
 
     Attributes
     ----------
-    shift_scale : float
+    shift_scale : float, default=1.2
         scaling factor for vertical shifts of blocks
-    tikz_options : str
+    node_options : str
         TikZ node options
-    internal_arrow_length : float
+    internal_arrow_length : float, default=0.3
         distance between blocks in series
-    pad : Padding
+    end_arrow_scaling : float, default=0.75
+        scale factor of last arrow in `Group`
+    pad : Padding, default=Padding(1, 1, 1, 1)
         `namedtuple` `(north, east, south, west)` defining padding (in mmm) between
         blocks and series frame
-    label_height : float
+    label_height : float, default=5.0
         height of series label (in mm)
     """
 
@@ -341,7 +343,7 @@ class Group(Block):
         ]
     )
     internal_arrow_length: float = 0.3
-    end_arrow_scaling = 0.75
+    end_arrow_scaling: float = 0.75
     pad: Padding = Padding(1, 1, 1, 1)
     label_height: float = 5.0
 
@@ -400,7 +402,7 @@ class Group(Block):
 
         Parameters
         ----------
-        connector_position : Optional[float]
+        connector_position : Optional[float], default=None
             distance in cm to right angle bend in connector.
             Locked to 0.0 for `Group` class
 
