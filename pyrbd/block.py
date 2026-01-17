@@ -1,6 +1,6 @@
 """Module containing Block, Series and Group class definitions."""
 
-from typing import Optional, Generator
+from typing import Optional, Generator, overload, Literal
 from copy import deepcopy
 from collections import namedtuple
 import itertools
@@ -126,18 +126,24 @@ class Block:
 
         return Series([self, block], parent=self.parent)
 
-    def __rmul__(self, value: int) -> "Group":
+    @overload
+    def __rmul__(self, value: Literal[1]) -> "Block": ...
+
+    @overload
+    def __rmul__(self, value: int) -> "Group": ...
+
+    def __rmul__(self, value: int) -> "Group | Block":
         """Right multiply `Block` instance by `value` to make `Group` with repeated blocks.
 
         Parameters
         ----------
         value : int
-            multiplicative factor
+            multiplicative factor, a positive integer
 
         Returns
         -------
-        Group
-            `Group` instance with `value` copies of block
+        Group | Block
+            `Group` instance with `value` copies of block if `value > 1`, `self` otherwise
 
         Raises
         ------
@@ -147,23 +153,32 @@ class Block:
 
         if not isinstance(value, int) or value <= 0:
             raise ValueError("Multiplicative factor `value` must be a positive integer")
+
+        if value == 1:
+            return self
 
         blocks: list[Block] = [deepcopy(self) for _ in range(value)]
 
         return Group(blocks, parent=self.parent)
 
-    def __mul__(self, value: int) -> "Series":
+    @overload
+    def __mul__(self, value: Literal[1]) -> "Block": ...
+
+    @overload
+    def __mul__(self, value: int) -> "Series": ...
+
+    def __mul__(self, value: int) -> "Series | Block":
         """Multiply `Block` instance by `value` to make `Series` with repeated blocks.
 
         Parameters
         ----------
         value : int
-            multiplicative factor
+            multiplicative factor, a positive integer
 
         Returns
         -------
-        Series
-            `Series` instance with `value` copies of block
+        Series | Block
+            `Series` instance with `value` copies of block if `value > 1`, self otherwise
 
         Raises
         ------
@@ -173,6 +188,9 @@ class Block:
 
         if not isinstance(value, int) or value <= 0:
             raise ValueError("Multiplicative factor `value` must be a positive integer")
+
+        if value == 1:
+            return self
 
         blocks: list[Block] = [deepcopy(self) for _ in range(value)]
 
