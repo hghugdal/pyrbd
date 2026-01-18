@@ -1,6 +1,6 @@
 ## Simple diagram
 ```python linenums="1"
---8<-- "simple_rbd.py:13:13,16:"
+--8<-- "simple_rbd.py:14:14,17:"
 ```
 
 --8<-- "simple_rbd.py:4:8"
@@ -11,10 +11,10 @@
 ## Example with more functionality
 
 ```python linenums="1"
---8<-- "example_rbd.py:15:19,22:"
+--8<-- "example_rbd.py:17:21,24:"
 ```
 
---8<-- "example_rbd.py:4:9"
+--8<-- "example_rbd.py:4:11"
 
 <img width="1000" src='examples/example_RBD.svg'/>
 

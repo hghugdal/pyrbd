@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyrbd"
-version = "0.4.2a1"
+version = "0.4.2"
 description = "Package for creating simple reliability block diagrams (RBDs) using LaTeX and TikZ."
 readme = "README.md"
 authors = [

@@ -1,7 +1,7 @@
 """Templates subpackage."""
 
 from os.path import abspath, join, dirname
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, StrictUndefined
 
 _TEMPLATE_DIR = abspath(join(dirname(__file__), "templates/"))
 JINJA_ENV: Environment = Environment(
@@ -17,4 +17,5 @@ JINJA_ENV: Environment = Environment(
     trim_blocks=True,
     autoescape=False,
     keep_trailing_newline=True,
+    undefined=StrictUndefined,
 )
