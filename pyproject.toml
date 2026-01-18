@@ -27,10 +27,15 @@ Issues = "https://github.com/hghugdal/pyrbd/issues"
 Documentation = "https://hghugdal.github.io/pyrbd"
 
 [tool.mypy]
-python_version = "3.11"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 warn_unreachable = true
+exclude = [
+    ".venv",
+    "site",
+    "dist",
+]
 
 [[tool.mypy.overrides]]
 module = [
@@ -77,3 +82,7 @@ ignore-paths = [
     ".venv",
     "dist",
 ]
+
+[tool.pydoclint]
+check-arg-defaults = true
+check-style-mismatch = true

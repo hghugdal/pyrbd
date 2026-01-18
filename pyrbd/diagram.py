@@ -19,15 +19,15 @@ class Diagram:
         name of diagram
     blocks : list[Block]
         list of `Block` instances
-    hazard : str, optional
-        string defining the `hazard` block text
-    colors : dict[str, str], optional
+    hazard : str, default=""
+        string defining the `hazard` block text (optional)
+    colors : Optional[dict[str, str]], default=None
         dictionary with custom color definitions in HEX format:
         `{'color name': '6 digit hex code'}`
 
     Attributes
     ----------
-    colors : dict[str, str]
+    colors : dict[str, str], default={"arrowcolor": "4c4d4c", "hazardcolor": "ff6666"}
         default diagram color definitions
     """
 
@@ -121,7 +121,7 @@ class Diagram:
         page = pdf_document[0]
 
         # Get image
-        image = page.get_pixmap(dpi=300)  # type: ignore
+        image = page.get_pixmap(dpi=300)
 
         # Save to file
         image.save(output_file := f"{self.filename}.png")

@@ -8,6 +8,7 @@ Annotations:
     Defaults to PDF if unspecified.
 """
 
+# pylint: disable=C0103
 from os import path, chdir
 
 from pyrbd import Block, Diagram
