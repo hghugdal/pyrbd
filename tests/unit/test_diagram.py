@@ -6,7 +6,7 @@ from typing import Generator
 import pytest
 from pytest import FixtureRequest
 
-from pyrbd import Diagram, Block, config
+from pyrbd import Diagram, Block, config, Group, Series
 
 
 @pytest.fixture(name="arrow_style", scope="module", params=["", "-latex"])
@@ -24,8 +24,33 @@ def diagram_fixture(arrow_style: str) -> Diagram:
 
     config.ARROW_STYLE = arrow_style
 
-    block = Block("block", "white")
-    return Diagram("test_diagram", [block], "Fire", colors={"myblue": "8888ff"})
+    start_block = Block("Start", "myblue", parent=None)
+    parallel = 2 * Block("Parallel blocks", "gray", parent=start_block)
+    group = Group(
+        [
+            Block(r"Block 1", "yellow!50") + Block(r"Block 2", "yellow!50"),
+            Block(r"Block 3", "yellow!50")
+            + Block(r"Block 4", "yellow!50")
+            + Block(r"Block 5", "yellow!50"),
+        ],
+        parent=parallel,
+        text="Group",
+        color="yellow",
+    )
+    series = Series(
+        [Block(r"Block A", "orange!50"), Block(r"Block B", "orange!50")],
+        "Series",
+        "orange",
+        parent=group,
+    )
+    end_block = Block("End", "green!50", parent=series)
+
+    return Diagram(
+        "test_diagram",
+        [start_block, parallel, group, series, end_block],
+        "Fire",
+        colors={"myblue": "8888ff"},
+    )
 
 
 def test_diagram_init(diagram: Diagram) -> None:
