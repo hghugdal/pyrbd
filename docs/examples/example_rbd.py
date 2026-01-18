@@ -11,6 +11,7 @@ Code comments:
 
 """
 
+# pylint: disable=C0103
 from os import path, chdir
 
 from pyrbd import Block, Group, Series, Diagram, config

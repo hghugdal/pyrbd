@@ -131,6 +131,13 @@ def test_mul_rmul() -> None:
         with pytest.raises(ValueError):
             print(block * value)  # type: ignore
 
+    rblock = 1 * block
+    assert rblock is block
+    assert isinstance(rblock, Block)
+    lblock = block * 1
+    assert lblock is block
+    assert isinstance(lblock, Block)
+
 
 def test_get_blocks() -> None:
     """Test get_blocks generator function."""
