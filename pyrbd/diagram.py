@@ -7,7 +7,7 @@ import pymupdf
 
 from . import config
 from .templates import JINJA_ENV
-from .block import Block
+from .block import Block, Group
 
 
 class Diagram:
@@ -67,6 +67,9 @@ class Diagram:
                 {"name": name, "hex_code": code} for name, code in self.colors.items()
             ],
             "blocks": list(block.get_node() for block in [self.head, *self.blocks]),
+            "final_block": self.blocks[-1]
+            if isinstance(self.blocks[-1], Group)
+            else None,
         }
         content = template.render(context)
 

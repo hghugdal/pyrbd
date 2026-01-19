@@ -1,5 +1,6 @@
 """Example with layered Series and Group instances."""
 
+# pylint: disable=C0103
 from os import path, chdir
 from copy import deepcopy
 
@@ -48,7 +49,7 @@ series_in_series = Series(
     text="Parent series",
     color="red",
 )
-end_block = Block("End", "green!50", parent=series_in_series)
+end_block = 2 * Block("End", "green!50", parent=series_in_series)
 
 # Define and compile the diagram
 diagram = Diagram(

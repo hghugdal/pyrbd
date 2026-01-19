@@ -22,7 +22,7 @@
 ## Layered `Series` and `Group` instances
 
 ```python linenums="1"
---8<-- "layered_rbd.py:6:6,9:"
+--8<-- "layered_rbd.py:7:7,10:"
 ```
 
 <img width="1200" src='examples/layered_RBD.svg'/>
