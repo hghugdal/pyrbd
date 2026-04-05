@@ -1,13 +1,12 @@
 """Module containing Diagram class definition."""
 
-from typing import Optional
 import subprocess
 
 import pymupdf
 
 from . import config
+from .block import Block, Group
 from .templates import JINJA_ENV
-from .block import Block
 
 
 class Diagram:
@@ -21,7 +20,7 @@ class Diagram:
         list of `Block` instances
     hazard : str, default=""
         string defining the `hazard` block text (optional)
-    colors : Optional[dict[str, str]], default=None
+    colors : dict[str, str] | None, default=None
         dictionary with custom color definitions in HEX format:
         `{'color name': '6 digit hex code'}`
 
@@ -39,7 +38,7 @@ class Diagram:
         name: str,
         blocks: list[Block],
         hazard: str = "",
-        colors: Optional[dict[str, str]] = None,
+        colors: dict[str, str] | None = None,
     ) -> None:
         self.filename = name
         if hazard:
@@ -63,10 +62,9 @@ class Diagram:
         context = {
             "serif_font": config.SERIF_FONT,
             "arrow_style": config.ARROW_STYLE,
-            "color_defs": [
-                {"name": name, "hex_code": code} for name, code in self.colors.items()
-            ],
+            "color_defs": [{"name": name, "hex_code": code} for name, code in self.colors.items()],
             "blocks": list(block.get_node() for block in [self.head, *self.blocks]),
+            "final_block": self.blocks[-1] if isinstance(self.blocks[-1], Group) else None,
         }
         content = template.render(context)
 
@@ -130,9 +128,7 @@ class Diagram:
 
         return output_file
 
-    def compile(
-        self, output: str | list[str] = "pdf", clear_source: bool = True
-    ) -> list[str]:
+    def compile(self, output: str | list[str] = "pdf", clear_source: bool = True) -> list[str]:
         """Compile diagram .tex file.
 
         Parameters
@@ -160,19 +156,15 @@ class Diagram:
         """
 
         try:
-            subprocess.check_call(
-                ["latexmk", "--lualatex", f"{self.filename}.tex", "--silent"]
-            )
+            subprocess.check_call(["latexmk", "--lualatex", f"{self.filename}.tex", "--silent"])
             subprocess.check_call(["latexmk", "-c", f"{self.filename}.tex"])
             if clear_source:
                 subprocess.check_call(["rm", f"{self.filename}.tex"])
         except subprocess.CalledProcessError as err:
             if err.returncode == 11:
                 raise FileNotFoundError(
-                    (
-                        f"File {self.filename} not found. "
-                        + "Check if call to Class method write() is missing."
-                    )
+                    f"File {self.filename} not found. "
+                    "Check if call to Class method write() is missing."
                 ) from err
 
         output_files: list[str] = []

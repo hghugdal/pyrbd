@@ -9,7 +9,7 @@ Annotations:
 """
 
 # pylint: disable=C0103
-from os import path, chdir
+from os import chdir, path
 
 from pyrbd import Block, Diagram
 

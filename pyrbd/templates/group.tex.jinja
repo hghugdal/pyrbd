@@ -5,13 +5,13 @@
 [right=\VAR{ block.arrow_length + block.shift[0] }cm of \VAR{ block.parent.last.id }, yshift=\VAR{ block.shift[1] }cm]
 \BLOCK{ endif }
 {\begin{tikzpicture}[remember picture]
-\coordinate(\VAR{ block.id }) at (0, 0);
-\BLOCK{ for member in block_nodes }\VAR{ member }\BLOCK{ endfor }
-%#
-% Connecting arrows
-\BLOCK{ for member in block.sorted_blocks }\BLOCK{ if not loop.first }
-\draw[\VAR{ block.arrow_options }, rectangle line=\VAR{ block.end_arrow_scaling * block.internal_arrow_length }cm] (\VAR{ block.sorted_blocks[0].id }.east) to (\VAR{ member.id }.east);
-\BLOCK{ endif }\BLOCK{ endfor }
+    \coordinate(\VAR{ block.id }) at (0, 0);
+    \BLOCK{ for member in block_nodes }\VAR{ member }\BLOCK{ endfor }
+    %#
+    % Connecting arrows
+    \BLOCK{ for member in block.sorted_blocks }\BLOCK{ if not loop.first }
+    \draw[\VAR{ block.arrow_options }, rectangle line=\VAR{ block.end_arrow_scaling * block.internal_arrow_length }cm] (\VAR{ block.sorted_blocks[0].id }.east) to (\VAR{ member.id }.east);
+    \BLOCK{ endif }\BLOCK{ endfor }
 \end{tikzpicture}};
 %#
 \BLOCK{ if block.parent is not none }
