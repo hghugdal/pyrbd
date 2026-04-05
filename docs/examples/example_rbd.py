@@ -12,9 +12,9 @@ Code comments:
 """
 
 # pylint: disable=C0103
-from os import path, chdir
+from os import chdir, path
 
-from pyrbd import Block, Group, Series, Diagram, config
+from pyrbd import Block, Diagram, Group, Series, config
 
 config.ARROW_STYLE = "-latex"  # (1)
 config.SERIF_FONT = True

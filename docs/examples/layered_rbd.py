@@ -1,10 +1,10 @@
 """Example with layered Series and Group instances."""
 
 # pylint: disable=C0103
-from os import path, chdir
 from copy import deepcopy
+from os import chdir, path
 
-from pyrbd import Block, Group, Series, Diagram
+from pyrbd import Block, Diagram, Group, Series
 
 chdir(path.dirname(__file__))
 
