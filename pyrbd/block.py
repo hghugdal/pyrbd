@@ -1,9 +1,12 @@
 """Module containing Block, Series and Group class definitions."""
 
-from typing import Optional, Generator, overload, Literal
-from copy import deepcopy
-from collections import namedtuple
+from __future__ import annotations
+
 import itertools
+from collections import namedtuple
+from collections.abc import Generator
+from copy import deepcopy
+from typing import Literal, overload
 
 from .templates import JINJA_ENV
 
@@ -19,7 +22,7 @@ class Block:
         block text string
     color : str
         block color
-    parent : Optional["Block"], default=None
+    parent : Block | None, default=None
         parent `Block` instance
     shift : tuple[float, float], default=(0.0, 0.0)
         additional position shift `(x, y)` relative to `parent` `Block` instance
@@ -50,6 +53,7 @@ class Block:
 
     arrow_options: str = "arrowcolor, thick"
     arrow_length: float = 0.5
+    # draw_arrow: bool = True
 
     _block_count = itertools.count(start=1)
 
@@ -57,7 +61,7 @@ class Block:
         self,
         text: str,
         color: str,
-        parent: Optional["Block"] = None,
+        parent: Block | None = None,
         shift: tuple[float, float] = (0.0, 0.0),
     ) -> None:
         self.text = text
@@ -67,12 +71,12 @@ class Block:
         self.last = self
         self.id = str(next(self._block_count))
 
-    def get_node(self, connector_position: Optional[float] = None) -> str:
+    def get_node(self, connector_position: float | None = None) -> str:
         """Get TikZ node string.
 
         Parameters
         ----------
-        connector_position : Optional[float], default=None
+        connector_position : float | None, default=None
             distance in cm to right angle bend in connector. Defaults to `0.5*arrow_length`.
 
         Returns
@@ -95,12 +99,12 @@ class Block:
 
         return template.render(context)
 
-    def get_blocks(self) -> Generator["Block", None, None]:
+    def get_blocks(self) -> Generator[Block, None, None]:
         """Yield child `Block` istances."""
 
         yield self
 
-    def __add__(self, block: "Block") -> "Series":
+    def __add__(self, block: Block) -> Series:
         """Add two `Block` instances to make a `Series` instance.
 
         Parameters
@@ -120,19 +124,17 @@ class Block:
         """
 
         if not isinstance(block, Block):
-            raise TypeError(
-                f"Cannot add object of type {type(block)=} to Block instance."
-            )
+            raise TypeError(f"Cannot add object of type {type(block)=} to Block instance.")
 
         return Series([self, block], parent=self.parent)
 
     @overload
-    def __rmul__(self, value: Literal[1]) -> "Block": ...
+    def __rmul__(self, value: Literal[1]) -> Block: ...
 
     @overload
-    def __rmul__(self, value: int) -> "Group": ...
+    def __rmul__(self, value: int) -> Group: ...
 
-    def __rmul__(self, value: int) -> "Group | Block":
+    def __rmul__(self, value: int) -> Group | Block:
         """Right multiply `Block` instance by `value` to make `Group` with repeated blocks.
 
         Parameters
@@ -162,12 +164,12 @@ class Block:
         return Group(blocks, parent=self.parent)
 
     @overload
-    def __mul__(self, value: Literal[1]) -> "Block": ...
+    def __mul__(self, value: Literal[1]) -> Block: ...
 
     @overload
-    def __mul__(self, value: int) -> "Series": ...
+    def __mul__(self, value: int) -> Series: ...
 
-    def __mul__(self, value: int) -> "Series | Block":
+    def __mul__(self, value: int) -> Series | Block:
         """Multiply `Block` instance by `value` to make `Series` with repeated blocks.
 
         Parameters
@@ -208,7 +210,7 @@ class Series(Block):
         series label text
     color: str, default="white"
         series color, defaults to white
-    parent : Optional[Block], default=None
+    parent : Block | None, default=None
         parent `Block` instance
 
     Attributes
@@ -243,7 +245,7 @@ class Series(Block):
         blocks: list[Block],
         text: str = "",
         color: str = "white",
-        parent: Optional[Block] = None,
+        parent: Block | None = None,
     ) -> None:
         Block.__init__(self, text, color, parent)
 
@@ -252,7 +254,7 @@ class Series(Block):
 
         self.blocks[0].id = f"{self.id}+0"
         for i, (block, new_parent) in enumerate(
-            zip(self.blocks[1::], self.blocks[0:-1]), start=1
+            zip(self.blocks[1::], self.blocks[0:-1], strict=True), start=1
         ):
             block.parent = new_parent
             block.id = f"{self.id}+{i}"
@@ -262,12 +264,12 @@ class Series(Block):
         if True in [isinstance(block, Series) for block in self.blocks]:
             self.shift = (0, 0.25)
 
-    def get_node(self, connector_position: Optional[float] = None) -> str:
+    def get_node(self, connector_position: float | None = None) -> str:
         """Get TikZ node string.
 
         Parameters
         ----------
-        connector_position : Optional[float], default=None
+        connector_position : float | None, default=None
             distance in cm to right angle bend in connector. Defaults to `0.5 * arrow_length`
 
         Returns
@@ -296,9 +298,7 @@ class Series(Block):
         return template.render(context)
 
     def get_blocks(self) -> Generator[Block, None, None]:
-        yield from [
-            children for block in self.blocks for children in block.get_blocks()
-        ]
+        yield from [children for block in self.blocks for children in block.get_blocks()]
 
 
 class Group(Block):
@@ -312,7 +312,7 @@ class Group(Block):
         group label text
     color : str, default=""
         group color, defaults to white
-    parent : Optional[Block], default=None
+    parent : Block | None, default=None
         parent `Block` instance
 
     Attributes
@@ -352,16 +352,17 @@ class Group(Block):
         blocks: list[Block],
         text: str = "",
         color: str = "",
-        parent: Optional[Block] = None,
+        parent: Block | None = None,
     ) -> None:
         Block.__init__(self, text, color, parent)
 
         self.blocks = blocks
-        for i, (block, shift) in enumerate(zip(self.blocks, self.shifts)):
+        for i, (block, shift) in enumerate(zip(self.blocks, self.shifts, strict=True)):
             block.shift = (0, shift)
             block.parent = self
             block.id = f"{self.id}-{i}"
             block.arrow_length = self.internal_arrow_length
+            # block.draw_arrow = False
 
     @property
     def shifts(self) -> list[float]:
@@ -384,25 +385,20 @@ class Group(Block):
         # scaling = 0.75
 
         series_blocks = [block for block in self.blocks if isinstance(block, Series)]
-        series_blocks.sort(
-            key=lambda block: len(list(block.get_blocks())), reverse=True
-        )
+        series_blocks.sort(key=lambda block: len(list(block.get_blocks())), reverse=True)
 
-        if len(series_blocks) > 0:
-            longest_series_index = self.blocks.index(series_blocks[0])
-        else:
-            longest_series_index = 0
+        longest_series_index = self.blocks.index(series_blocks[0]) if len(series_blocks) > 0 else 0
         blocks = deepcopy(self.blocks)
         longest_series = blocks.pop(longest_series_index)
 
         return [longest_series, *blocks]
 
-    def get_node(self, connector_position: Optional[float] = None) -> str:
+    def get_node(self, connector_position: float | None = None) -> str:
         """Get TikZ node string.
 
         Parameters
         ----------
-        connector_position : Optional[float], default=None
+        connector_position : float | None, default=None
             distance in cm to right angle bend in connector.
             Locked to 0.0 for `Group` class
 
