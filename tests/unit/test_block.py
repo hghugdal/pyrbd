@@ -4,7 +4,7 @@ from copy import deepcopy
 
 import pytest
 
-from pyrbd import Block, Series, Group
+from pyrbd import Block, Group, Series
 
 
 def test_block() -> None:
@@ -86,9 +86,7 @@ def test_group() -> None:
     for color in ["blue", "green"]:
         assert color in group_node.get_node()
 
-    group_w_background = Group(
-        [block_1, block_2], parent=group, text="Group label", color="black"
-    )
+    group_w_background = Group([block_1, block_2], parent=group, text="Group label", color="black")
     tikz_node = group_w_background.get_node()
     assert "black" in tikz_node
     assert "Group label" in tikz_node

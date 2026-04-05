@@ -1,12 +1,12 @@
 """Tests for `Diagram` class."""
 
+from collections.abc import Generator
 from os import chdir
-from typing import Generator
 
 import pytest
 from pytest import FixtureRequest
 
-from pyrbd import Diagram, Block, config, Group, Series
+from pyrbd import Block, Diagram, Group, Series, config
 
 
 @pytest.fixture(name="arrow_style", scope="module", params=["", "-latex"])
@@ -57,7 +57,7 @@ def test_diagram_init(diagram: Diagram) -> None:
     """Test __init__ of `Diagram` class."""
 
     assert diagram.filename == "test_diagram"
-    assert "myblue" in diagram.colors.keys()
+    assert "myblue" in diagram.colors
     assert isinstance(diagram.head, Block)
 
 

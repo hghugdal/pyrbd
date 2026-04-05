@@ -4,7 +4,7 @@ from os import chdir
 
 import pytest
 
-from pyrbd import Diagram, Block
+from pyrbd import Block, Diagram
 
 
 @pytest.fixture(name="diagram")
