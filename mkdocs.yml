@@ -4,8 +4,8 @@ site_url: https://hghugdal.github.io/pyrbd
 
 theme:
   name: "material"
-  logo: images/logo.svg
-  favicon: images/logo.png
+  logo: images/icon.png
+  favicon: images/icon.png
   features:
     - navigation.instant
     - navigation.tabs
