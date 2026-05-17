@@ -4,7 +4,7 @@ requires = [ "hatchling>=1.26" ]
 
 [project]
 name = "pyrbd"
-version = "0.4.3"
+version = "0.4.4b1"
 description = "Package for creating simple reliability block diagrams (RBDs) using LaTeX and TikZ."
 readme = "README.md"
 license = "MIT"
@@ -33,23 +33,23 @@ urls.Repository = "https://github.com/hghugdal/pyrbd"
 dev = [
   "coverage>=7.10.3",
   "markdown-exec[ansi]>=1.11",
-  "mkdocs>=1.6.1",
-  "mkdocs-material>=9.6.16",
   "mkdocstrings[python]>=0.30",
   "mypy>=1.17.1",
   "pre-commit>=4.3",
   "pydoclint>=0.6.8",
   "pylint>=3.3.8",
   "pymupdf>=1.26.3",
+  "pyproject-fmt>=2.21.2",
   "pytest>=8.4.1",
   "ruff>=0.12.8",
   "ty>=0.0.1a18",
+  "zensical>=0.0.42",
 ]
 
 [tool.ruff]
 line-length = 99
 indent-width = 4
-lint.select = ["E", "F", "B", "UP", "I", "SIM"]
+lint.select = [ "B", "E", "F", "I", "SIM", "UP" ]
 
 [tool.pylint]
 ignore-paths = [
@@ -60,6 +60,18 @@ ignore-paths = [
 [tool.pydoclint]
 check-arg-defaults = true
 check-style-mismatch = true
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+warn_unreachable = true
+exclude = [
+  ".venv",
+  "site",
+  "dist",
+]
+overrides = [ { module = [ "pyrbd.*", "pymupdf.*" ], ignore_missing_imports = true } ]
 
 [tool.pytest]
 ini_options.addopts = [
@@ -76,15 +88,3 @@ ini_options.filterwarnings = [
   "ignore:builtin type SwigPyObject has no __module__ attribute:DeprecationWarning",
   "ignore:builtin type swigvarlink has no __module__ attribute:DeprecationWarning",
 ]
-
-[tool.mypy]
-python_version = "3.12"
-warn_return_any = true
-warn_unused_configs = true
-warn_unreachable = true
-exclude = [
-  ".venv",
-  "site",
-  "dist",
-]
-overrides = [ { module = [ "pyrbd.*", "pymupdf.*" ], ignore_missing_imports = true } ]

@@ -8,3 +8,6 @@
 *.log
 .coverage
 .coverage
+
+# Documentation site directory
+site
