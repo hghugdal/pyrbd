@@ -1,4 +1,4 @@
-# <img alt="pyRBDlogo" src=images/logo.svg width=50 align=top> pyRBD
+# <img alt="pyRBDlogo" src=images/logo.png width=300 align=top>
 
 --8<-- "README.md:3:-5"
 

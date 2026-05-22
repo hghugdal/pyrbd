@@ -3,9 +3,9 @@ repo_url: https://github.com/hghugdal/pyrbd
 site_url: https://hghugdal.github.io/pyrbd
 
 theme:
-  name: "material"
-  logo: images/logo.svg
-  favicon: images/logo.png
+  variant: classic
+  logo: images/icon.png
+  favicon: images/icon.png
   features:
     - navigation.instant
     - navigation.tabs
@@ -37,7 +37,7 @@ theme:
   # font: true
 
 nav:
-  - index.md
+  - pyRBD Docs: index.md
   - tutorials.md
   - Reference:
     - Reference: reference/index.md
