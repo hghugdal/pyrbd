@@ -1,4 +1,4 @@
-# <img alt="pyRBDlogo" src="https://raw.githubusercontent.com/hghugdal/pyrbd/23d7f00ca74e8465df3760821488b4bb78df803c/docs/images/logo.svg" width=40 align=top> pyRBD
+# <img alt="pyRBDlogo" src="https://github.com/hghugdal/pyrbd/blob/6fc5667b10c69f61355a6a7be1b24640f0bc82ca/docs/images/logo.svg" width=300 align=top>
 
 [![PyPI - Version](https://img.shields.io/pypi/v/pyrbd)](https://pypi.org/project/pyrbd/)
 <img alt="Python" src="https://img.shields.io/badge/Python->= 3.10-blue?logo=python&link=None">

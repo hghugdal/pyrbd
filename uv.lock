@@ -833,7 +833,7 @@ wheels = [
 
 [[package]]
 name = "pyrbd"
-version = "0.4.4b1"
+version = "0.4.5"
 source = { editable = "." }
 dependencies = [
     { name = "jinja2" },
