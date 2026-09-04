@@ -4,7 +4,7 @@ requires = [ "hatchling>=1.26" ]
 
 [project]
 name = "pyrbd"
-version = "0.4.5"
+version = "0.5.0a1"
 description = "Package for creating simple reliability block diagrams (RBDs) using LaTeX and TikZ."
 readme = "README.md"
 license = "MIT"
@@ -38,6 +38,7 @@ dev = [
   "pre-commit>=4.3",
   "pydoclint>=0.6.8",
   "pylint>=3.3.8",
+  "pymdown-extensions>=11.0.1",
   "pymupdf>=1.26.3",
   "pyproject-fmt>=2.21.2",
   "pytest>=8.4.1",
@@ -45,6 +46,9 @@ dev = [
   "ty>=0.0.1a18",
   "zensical>=0.0.42",
 ]
+
+[tool.uv]
+exclude-newer = "14 days"
 
 [tool.ruff]
 line-length = 99
@@ -62,29 +66,29 @@ check-arg-defaults = true
 check-style-mismatch = true
 
 [tool.mypy]
-python_version = "3.12"
-warn_return_any = true
-warn_unused_configs = true
-warn_unreachable = true
 exclude = [
   ".venv",
-  "site",
   "dist",
+  "site",
 ]
-overrides = [ { module = [ "pyrbd.*", "pymupdf.*" ], ignore_missing_imports = true } ]
+python_version = "3.12"
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+overrides = [ { module = [ "pymupdf.*", "pyrbd.*" ], ignore_missing_imports = true } ]
 
 [tool.pytest]
-ini_options.addopts = [
-  "--import-mode=importlib",
-  "--doctest-modules",
-]
 ini_options.testpaths = [
   "pyrbd",
   "tests",
 ]
+ini_options.addopts = [
+  "--import-mode=importlib",
+  "--doctest-modules",
+]
 ini_options.filterwarnings = [
+  "ignore:builtin type SwigPyObject has no __module__ attribute:DeprecationWarning",
   # ignore DeprecationWarnings related to PyMuPDF
   "ignore:builtin type SwigPyPacked has no __module__ attribute:DeprecationWarning",
-  "ignore:builtin type SwigPyObject has no __module__ attribute:DeprecationWarning",
   "ignore:builtin type swigvarlink has no __module__ attribute:DeprecationWarning",
 ]
