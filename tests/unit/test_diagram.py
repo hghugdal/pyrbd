@@ -23,6 +23,7 @@ def diagram_fixture(arrow_style: str) -> Diagram:
     """Diagram pytest fixture."""
 
     config.ARROW_STYLE = arrow_style
+    config.SOURCE_DIR = ""
 
     start_block = Block("Start", "myblue", parent=None)
     parallel = 2 * Block("Parallel blocks", "gray", parent=start_block)

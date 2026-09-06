@@ -4,12 +4,14 @@ from os import chdir
 
 import pytest
 
-from pyrbd import Block, Diagram
+from pyrbd import Block, Diagram, config
 
 
 @pytest.fixture(name="diagram")
 def diagram_fixture() -> Diagram:
     """Diagram pytest fixture."""
+
+    config.SOURCE_DIR = ""
 
     block1 = Block("block1", "white")
     block2 = Block("block2", "white")
