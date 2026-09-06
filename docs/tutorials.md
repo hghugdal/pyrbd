@@ -1,3 +1,7 @@
+---
+icon: lucide/book-open-check
+---
+
 ## Simple diagram
 ```python linenums="1"
 --8<-- "simple_rbd.py:14:14,17:"
