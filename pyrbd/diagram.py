@@ -120,7 +120,7 @@ class Diagram:
                     "--lualatex",
                     tex_file,
                     "--silent",
-                    f"-output_directory={source_dir}" if str(source_dir) != "." else "",
+                    f"-output-directory={source_dir}" if str(source_dir) != "." else "",
                 ]
             )
             if clear_source:
