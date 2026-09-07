@@ -4,7 +4,7 @@ requires = [ "hatchling>=1.26" ]
 
 [project]
 name = "pyrbd"
-version = "0.5.0a1"
+version = "0.5.0a2"
 description = "Package for creating simple reliability block diagrams (RBDs) using LaTeX and TikZ."
 readme = "README.md"
 license = "MIT"

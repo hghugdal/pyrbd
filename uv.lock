@@ -9,7 +9,7 @@ resolution-markers = [
 ]
 
 [options]
-exclude-newer = "2026-08-23T18:50:27.653748556Z"
+exclude-newer = "2026-08-24T13:32:59.229431385Z"
 exclude-newer-span = "P14D"
 
 [[package]]
@@ -969,7 +969,7 @@ wheels = [
 
 [[package]]
 name = "pyrbd"
-version = "0.5.0a1"
+version = "0.5.0a2"
 source = { editable = "." }
 dependencies = [
     { name = "jinja2" },

@@ -48,6 +48,7 @@ class Diagram:
         self.filename: str = name
         self.output_dir: Path = Path(output_dir)
         self.source_dir: Path = Path(config.SOURCE_DIR)
+
         if hazard:
             self.head = Block(hazard, "hazardcolor")
         else:
@@ -75,9 +76,10 @@ class Diagram:
         }
         content = template.render(context)
 
-        with open(
-            Path(self.source_dir) / f"{self.filename}.tex", mode="w", encoding="utf-8"
-        ) as file:
+        if not self.source_dir.is_dir():
+            self.source_dir.mkdir()
+
+        with open(self.source_dir / f"{self.filename}.tex", mode="w", encoding="utf-8") as file:
             file.write(content)
 
     def compile(self, output: str | list[str] = "pdf", clear_source: bool = True) -> list[str]:
@@ -135,6 +137,9 @@ class Diagram:
 
         if not isinstance(output, list):
             output = [output]
+
+        if not output_dir.is_dir():
+            output_dir.mkdir()
 
         if "svg" in output:
             output_files.append(self._to_svg())
