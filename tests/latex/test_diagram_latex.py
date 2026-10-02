@@ -2,6 +2,7 @@
 
 from os import chdir
 from pathlib import Path
+from subprocess import CalledProcessError
 
 import pytest
 
@@ -23,7 +24,7 @@ def diagram_fixture(source_dir: str, output_dir: str) -> Diagram:
 
 
 def test_diagram_compile(tmp_path: Path, diagram: Diagram) -> None:
-    """Test `Diagram` `write` method."""
+    """Test `Diagram` `compile` method."""
 
     temp_dir = tmp_path / "test_diagram_compile"
     temp_dir.mkdir()
@@ -45,3 +46,23 @@ def test_diagram_compile(tmp_path: Path, diagram: Diagram) -> None:
     for file in output_files:
         assert Path(file).is_file()
         assert Path(file).exists()
+
+
+def test_diagram_compile_latex_error(tmp_path: Path, diagram: Diagram) -> None:
+    """Test `Diagram` `compile` method with error in LaTeX file."""
+
+    temp_dir = tmp_path / "test_diagram_compile_error"
+    temp_dir.mkdir()
+    chdir(temp_dir)
+
+    with pytest.raises(FileNotFoundError):
+        diagram.compile()
+
+    output = diagram.write()
+    print(output)
+
+    with open(temp_dir / output, "r+", encoding="utf8") as file:
+        file.write(r"\docummntclass")
+
+    with pytest.raises(CalledProcessError):
+        diagram.compile(clear_source=False)
