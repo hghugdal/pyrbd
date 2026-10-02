@@ -150,8 +150,7 @@ class Diagram:
                 raise FileNotFoundError(
                     f"File {tex_file} not found. Check if call to Class method write() is missing."
                 ) from err
-            else:
-                raise err
+            raise err
 
         pdf_filename = f"{self.filename}.pdf"
         output_files: list[str] = []
