@@ -61,8 +61,14 @@ class Diagram:
         if colors is not None:
             self.colors = self.colors | colors
 
-    def write(self) -> None:
-        """Write diagram to .tex file."""
+    def write(self) -> Path:
+        """Write diagram to .tex file.
+
+        Returns
+        -------
+        Path
+            output `.tex` file
+        """
 
         environment = JINJA_ENV
         template = environment.get_template(self._template)
@@ -79,8 +85,12 @@ class Diagram:
         if not self.source_dir.is_dir():
             self.source_dir.mkdir()
 
-        with open(self.source_dir / f"{self.filename}.tex", mode="w", encoding="utf-8") as file:
+        with open(
+            output_file := self.source_dir / f"{self.filename}.tex", mode="w", encoding="utf-8"
+        ) as file:
             file.write(content)
+
+        return output_file
 
     def compile(self, output: str | list[str] = "pdf", clear_source: bool = True) -> list[str]:
         """Compile diagram .tex file.
