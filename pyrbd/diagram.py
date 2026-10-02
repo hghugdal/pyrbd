@@ -1,8 +1,8 @@
 """Module containing Diagram class definition."""
 
-import subprocess
 from pathlib import Path
 from shutil import move
+from subprocess import CalledProcessError, check_call
 
 import pymupdf
 
@@ -117,6 +117,8 @@ class Diagram:
         FileNotFoundError
             If .tex file is not found, e.g. because `Diagram.write()` has not been called
             before `Diagram.compile()`.
+        CalledProcessError
+            If compiler returns another error, e.g. a LaTeX error
         """
 
         output_dir = self.output_dir
@@ -124,23 +126,32 @@ class Diagram:
         tex_file = source_dir / f"{self.filename}.tex"
 
         try:
-            subprocess.check_call(
+            check_call(
                 [
                     "latexmk",
                     "--lualatex",
                     tex_file,
                     "--silent",
-                    f"-output-directory={source_dir}" if str(source_dir) != "." else "",
+                    f"-output-directory={source_dir if str(source_dir) != '.' else ''}",
                 ]
             )
             if clear_source:
-                subprocess.check_call(["latexmk", "-c", tex_file])
+                check_call(
+                    [
+                        "latexmk",
+                        "-c",
+                        tex_file,
+                        f"-output-directory={source_dir if str(source_dir) != '.' else ''}",
+                    ]
+                )
                 tex_file.unlink()
-        except subprocess.CalledProcessError as err:
+        except CalledProcessError as err:
             if err.returncode == 11:
                 raise FileNotFoundError(
                     f"File {tex_file} not found. Check if call to Class method write() is missing."
                 ) from err
+            else:
+                raise err
 
         pdf_filename = f"{self.filename}.pdf"
         output_files: list[str] = []
