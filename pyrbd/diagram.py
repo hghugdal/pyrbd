@@ -1,6 +1,8 @@
 """Module containing Diagram class definition."""
 
-import subprocess
+from pathlib import Path
+from shutil import move
+from subprocess import CalledProcessError, check_call
 
 import pymupdf
 
@@ -23,6 +25,8 @@ class Diagram:
     colors : dict[str, str] | None, default=None
         dictionary with custom color definitions in HEX format:
         `{'color name': '6 digit hex code'}`
+    output_dir : str | Path, default=config.OUTPUT_DIR
+        output directory of diagram
 
     Attributes
     ----------
@@ -39,8 +43,12 @@ class Diagram:
         blocks: list[Block],
         hazard: str = "",
         colors: dict[str, str] | None = None,
+        output_dir: str | Path = config.OUTPUT_DIR,
     ) -> None:
-        self.filename = name
+        self.filename: str = name
+        self.output_dir: Path = Path(output_dir)
+        self.source_dir: Path = Path(config.SOURCE_DIR)
+
         if hazard:
             self.head = Block(hazard, "hazardcolor")
         else:
@@ -53,8 +61,14 @@ class Diagram:
         if colors is not None:
             self.colors = self.colors | colors
 
-    def write(self) -> None:
-        """Write diagram to .tex file."""
+    def write(self) -> Path:
+        """Write diagram to .tex file.
+
+        Returns
+        -------
+        Path
+            output `.tex` file
+        """
 
         environment = JINJA_ENV
         template = environment.get_template(self._template)
@@ -68,63 +82,13 @@ class Diagram:
         }
         content = template.render(context)
 
-        with open(f"{self.filename}.tex", mode="w", encoding="utf-8") as file:
+        if not self.source_dir.is_dir():
+            self.source_dir.mkdir()
+
+        with open(
+            output_file := self.source_dir / f"{self.filename}.tex", mode="w", encoding="utf-8"
+        ) as file:
             file.write(content)
-
-    def _to_svg(self) -> str:
-        """Convert diagram file from pdf to svg.
-
-        Returns
-        -------
-        str
-            filename of .svg file
-        """
-
-        pdf_document = pymupdf.open(f"{self.filename}.pdf")
-        page = pdf_document[0]
-
-        # Get and convert page to svg image
-        svg_content = page.get_svg_image().splitlines()
-        svg_content.insert(
-            1,
-            "\n".join(
-                [
-                    "<style>",
-                    "   @media (prefers-color-scheme: light) { :root { --color: #000000; } }",
-                    "   @media (prefers-color-scheme: dark) { :root { --color: #DDDDDD; } }",
-                    "</style>",
-                ]
-            ),
-        )
-        svg_content = "\n".join(svg_content).replace(r"#4c4d4c", "var(--color)")
-
-        # Save to file
-        with open(output_file := f"{self.filename}.svg", "w", encoding="utf-8") as file:
-            file.write(svg_content)
-
-        pdf_document.close()
-
-        return output_file
-
-    def _to_png(self) -> str:
-        """Convert diagram file from pdf to png.
-
-        Returns
-        -------
-        str
-            filename of .png file
-        """
-
-        pdf_document = pymupdf.open(f"{self.filename}.pdf")
-        page = pdf_document[0]
-
-        # Get image
-        image = page.get_pixmap(dpi=300)
-
-        # Save to file
-        image.save(output_file := f"{self.filename}.png")
-
-        pdf_document.close()
 
         return output_file
 
@@ -153,32 +117,117 @@ class Diagram:
         FileNotFoundError
             If .tex file is not found, e.g. because `Diagram.write()` has not been called
             before `Diagram.compile()`.
+        CalledProcessError
+            If compiler returns another error, e.g. a LaTeX error
         """
 
+        output_dir = self.output_dir
+        source_dir = self.source_dir
+        tex_file = source_dir / f"{self.filename}.tex"
+
         try:
-            subprocess.check_call(["latexmk", "--lualatex", f"{self.filename}.tex", "--silent"])
-            subprocess.check_call(["latexmk", "-c", f"{self.filename}.tex"])
+            check_call(
+                [
+                    "latexmk",
+                    "--lualatex",
+                    tex_file,
+                    "--silent",
+                    f"-output-directory={source_dir if str(source_dir) != '.' else ''}",
+                ]
+            )
             if clear_source:
-                subprocess.check_call(["rm", f"{self.filename}.tex"])
-        except subprocess.CalledProcessError as err:
+                check_call(
+                    [
+                        "latexmk",
+                        "-c",
+                        tex_file,
+                        f"-output-directory={source_dir if str(source_dir) != '.' else ''}",
+                    ]
+                )
+                tex_file.unlink()
+        except CalledProcessError as err:
             if err.returncode == 11:
                 raise FileNotFoundError(
-                    f"File {self.filename} not found. "
-                    "Check if call to Class method write() is missing."
+                    f"File {tex_file} not found. Check if call to Class method write() is missing."
                 ) from err
+            raise err
 
+        pdf_filename = f"{self.filename}.pdf"
         output_files: list[str] = []
 
         if not isinstance(output, list):
             output = [output]
+
+        if not output_dir.is_dir():
+            output_dir.mkdir()
 
         if "svg" in output:
             output_files.append(self._to_svg())
         if "png" in output:
             output_files.append(self._to_png())
         if "pdf" not in output:
-            subprocess.check_call(["rm", f"{self.filename}.pdf"])
+            (source_dir / pdf_filename).unlink()
         else:
-            output_files.append(f"{self.filename}.pdf")
+            move(source_dir / pdf_filename, output_dir / pdf_filename)
+            output_files.append(f"{output_dir / pdf_filename}")
 
         return output_files
+
+    def _to_svg(self) -> str:
+        """Convert diagram file from pdf to svg.
+
+        Returns
+        -------
+        str
+            filename of .svg file
+        """
+
+        pdf_document = pymupdf.open(self.source_dir / f"{self.filename}.pdf")
+        page = pdf_document[0]
+
+        # Get and convert page to svg image
+        svg_content = page.get_svg_image().splitlines()
+        svg_content.insert(
+            1,
+            "\n".join(
+                [
+                    "<style>",
+                    "   @media (prefers-color-scheme: light) { :root { --color: #000000; } }",
+                    "   @media (prefers-color-scheme: dark) { :root { --color: #DDDDDD; } }",
+                    "</style>",
+                ]
+            ),
+        )
+        svg_content = "\n".join(svg_content).replace(r"#4c4d4c", "var(--color)")
+
+        # Save to file
+        with open(
+            output_file := self.output_dir / f"{self.filename}.svg", "w", encoding="utf-8"
+        ) as file:
+            file.write(svg_content)
+
+        pdf_document.close()
+
+        return str(output_file)
+
+    def _to_png(self) -> str:
+        """Convert diagram file from pdf to png.
+
+        Returns
+        -------
+        str
+            filename of .png file
+        """
+
+        pdf_document = pymupdf.open(self.source_dir / f"{self.filename}.pdf")
+        page = pdf_document[0]
+
+        # Get image
+        image = page.get_pixmap(dpi=300)
+
+        # Save to file
+        image.save(output_file := self.output_dir / f"{self.filename}.png")
+
+        pdf_document.close()
+
+        return str(output_file)

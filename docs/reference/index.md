@@ -1,3 +1,9 @@
+---
+icon: lucide/file-code
+---
+
+# Reference
+
 Creating diagrams with pyRBD is done in two steps:
 
 1. Defining the blocks of the diagram and the relationship between them.

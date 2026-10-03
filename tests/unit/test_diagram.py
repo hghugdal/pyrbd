@@ -2,6 +2,7 @@
 
 from collections.abc import Generator
 from os import chdir
+from pathlib import Path
 
 import pytest
 from pytest import FixtureRequest
@@ -14,15 +15,15 @@ def arrow_style_fixture(request: FixtureRequest) -> Generator[str, None, None]:
     """Arrow style pytest fixture."""
 
     styles: str = request.param
-
     yield styles
 
 
 @pytest.fixture(name="diagram")
-def diagram_fixture(arrow_style: str) -> Diagram:
+def diagram_fixture(arrow_style: str, source_dir: str) -> Diagram:
     """Diagram pytest fixture."""
 
     config.ARROW_STYLE = arrow_style
+    config.SOURCE_DIR = source_dir
 
     start_block = Block("Start", "myblue", parent=None)
     parallel = 2 * Block("Parallel blocks", "gray", parent=start_block)
@@ -73,7 +74,7 @@ def test_diagram_wo_hazard() -> None:
     assert len(diagram.blocks) == 2
 
 
-def test_diagram_write(tmp_path, diagram: Diagram) -> None:
+def test_diagram_write(tmp_path: Path, diagram: Diagram) -> None:
     """Test `Diagram` `write` method."""
 
     temp_dir = tmp_path / "test_diagram"
@@ -81,11 +82,10 @@ def test_diagram_write(tmp_path, diagram: Diagram) -> None:
 
     chdir(temp_dir)
 
-    diagram.write()
-
-    tmp_file = temp_dir / f"{diagram.filename}.tex"
+    output_file = temp_dir / config.SOURCE_DIR / f"{diagram.filename}.tex"
+    assert diagram.write() == output_file.relative_to(temp_dir)
 
     for hex_code in diagram.colors.values():
-        assert hex_code in tmp_file.read_text()
-    assert config.ARROW_STYLE in tmp_file.read_text()
-    assert diagram.head.text in tmp_file.read_text()
+        assert hex_code in output_file.read_text()
+    assert config.ARROW_STYLE in output_file.read_text()
+    assert diagram.head.text in output_file.read_text()

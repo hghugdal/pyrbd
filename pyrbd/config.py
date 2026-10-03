@@ -8,8 +8,18 @@ ARROW_STYLE : str
     arrow head.
 SERIF_FONT : bool
     `False` to use sans-serif font (default), `True` to use serif fonts
+OUTPUT_DIR : str | Path
+    output directory of generated diagrams (default=`""`)
+SOURCE_DIR : str | Path
+    output directory for LaTeX source and compile files (default=`"rbd_source"`)
 """
+
+from pathlib import Path
 
 ARROW_STYLE: str = ""
 
 SERIF_FONT: bool = False
+
+OUTPUT_DIR: str | Path = ""
+
+SOURCE_DIR: str | Path = "rbd_source"

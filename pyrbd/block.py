@@ -180,7 +180,7 @@ class Block:
         Returns
         -------
         Series | Block
-            `Series` instance with `value` copies of block if `value > 1`, self otherwise
+            `Series` instance with `value` copies of block if `value > 1`, `self` otherwise
 
         Raises
         ------

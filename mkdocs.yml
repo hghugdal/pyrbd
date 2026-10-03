@@ -1,9 +1,16 @@
 site_name: pyRBD Docs
 repo_url: https://github.com/hghugdal/pyrbd
 site_url: https://hghugdal.github.io/pyrbd
+site_author: hghugdal
+site_description: Documentation for PyRBD - Reliability block diagrams in Python
+copyright: "&copy; 2026 hghugdal"
+docs_dir: docs
+watch:
+  - docs
 
 theme:
-  variant: classic
+  variant: modern
+  language: en
   logo: images/icon.png
   favicon: images/icon.png
   features:
@@ -52,24 +59,41 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
+          paths: [pyrbd]
+          inventories:
+          - https://docs.python.org/3/objects.inv
           options:
             show_root_heading: true
             show_root_full_path: false
             parameter_headings: false
             show_symbol_type_heading: true
             docstring_style: "numpy"
+            signature_crossrefs: true
+            show_signature_annotations: true
+            show_signature_type_parameters: true
+            show_symbol_type_toc: false
 
 markdown_extensions:
   - pymdownx.highlight
-  - pymdownx.superfences:
+  - pymdownx.superfences
       # custom_fences:
       # - name: python
       #   class: python
       #   validator: !!python/name:markdown_exec.validator
       #   format: !!python/name:markdown_exec.formatter
   - pymdownx.inlinehilite
+  - pymdownx.details
+  - attr_list
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:zensical.extensions.emoji.to_svg
+      emoji_index: !!python/name:zensical.extensions.emoji.twemoji
   - pymdownx.snippets:
       check_paths: true
-      base_path: [docs/examples, "."]
-  - attr_list
+      base_path: [docs/examples, ., pyrbd]
+  - pymdownx.tabbed:
+      alternate_style: true
   - md_in_html
+  - admonition
+
+extra_css:
+  - stylesheets/extra.css

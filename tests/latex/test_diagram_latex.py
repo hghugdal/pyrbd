@@ -1,24 +1,30 @@
 """Tests for `Diagram` class."""
 
 from os import chdir
+from pathlib import Path
+from subprocess import CalledProcessError
 
 import pytest
 
-from pyrbd import Block, Diagram
+from pyrbd import Block, Diagram, config
 
 
 @pytest.fixture(name="diagram")
-def diagram_fixture() -> Diagram:
+def diagram_fixture(source_dir: str, output_dir: str) -> Diagram:
     """Diagram pytest fixture."""
+
+    config.SOURCE_DIR = source_dir
 
     block1 = Block("block1", "white")
     block2 = Block("block2", "white")
     block3 = Block("block3", "white")
-    return Diagram("test_diagram_compile", [block1, block2, block3], "Overpressure")
+    return Diagram(
+        "test_diagram_compile", [block1, block2, block3], "Overpressure", output_dir=output_dir
+    )
 
 
-def test_diagram_compile(tmp_path, diagram: Diagram) -> None:
-    """Test `Diagram` `write` method."""
+def test_diagram_compile(tmp_path: Path, diagram: Diagram) -> None:
+    """Test `Diagram` `compile` method."""
 
     temp_dir = tmp_path / "test_diagram_compile"
     temp_dir.mkdir()
@@ -33,3 +39,30 @@ def test_diagram_compile(tmp_path, diagram: Diagram) -> None:
     assert ".png" in "\n".join(diagram.compile("png", clear_source=False))
     assert ".pdf" not in "\n".join(diagram.compile(["svg", "png"], clear_source=False))
     assert ".pdf" in "\n".join(diagram.compile(["pdf", "svg"]))
+
+    diagram.write()
+    output_files = diagram.compile(["pdf", "svg", "png"])
+
+    for file in output_files:
+        assert Path(file).is_file()
+        assert Path(file).exists()
+
+
+def test_diagram_compile_latex_error(tmp_path: Path, diagram: Diagram) -> None:
+    """Test `Diagram` `compile` method with error in LaTeX file."""
+
+    temp_dir = tmp_path / "test_diagram_compile_error"
+    temp_dir.mkdir()
+    chdir(temp_dir)
+
+    with pytest.raises(FileNotFoundError):
+        diagram.compile()
+
+    output = diagram.write()
+    print(output)
+
+    with open(temp_dir / output, "r+", encoding="utf8") as file:
+        file.write(r"\docummntclass")
+
+    with pytest.raises(CalledProcessError):
+        diagram.compile(clear_source=False)
